@@ -3,7 +3,7 @@ import java.util.*;
 import java.lang.*;
 import java.nio.charset.StandardCharsets;
 
-public class ExcelComparator {
+public class QualtricsDoubleEntryValidation {
 	private static String delimiter = "[\\t]";
 	private static String headerColumns[];
 	private static BufferedReader TSVFile;
