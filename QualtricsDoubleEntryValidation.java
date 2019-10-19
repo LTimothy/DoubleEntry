@@ -18,8 +18,8 @@ public class QualtricsDoubleEntryValidation {
 	private static String delimiter = "[\\t]";
 	private static String headerColumns[];
 	private static BufferedReader TSVFile;
-	private static List<PersonData> participantInformation;
-	private static Map<String, PersonData> idParticipantMap;
+	private static List<SurveyData> participantInformation;
+	private static Map<String, SurveyData> idParticipantMap;
 	private static String idString;
 	private static int idKey;
 	private static String idPrefix;
@@ -33,7 +33,7 @@ public class QualtricsDoubleEntryValidation {
     	try {
 	        TSVFile = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_16));
 	    } catch (Exception e) {
-	    	System.out.println("DEBUG: No file found. Does data.tsv exist?");
+	    	System.out.println("DEBUG: No file found. Does " + filename + " exist?");
 	    	System.exit(1);
 	    }
 
@@ -53,7 +53,7 @@ public class QualtricsDoubleEntryValidation {
     private static void analyzeSurveys() {
     	idParticipantMap = new HashMap<>();
     	for (int i = 0; i < participantInformation.size(); i++) {
-    		PersonData data = participantInformation.get(i);
+    		SurveyData data = participantInformation.get(i);
     		String id = data.participantIdentifier();
     		idParticipantMap.put(id, data);
     	}
@@ -78,8 +78,8 @@ public class QualtricsDoubleEntryValidation {
     	System.out.println("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
     	System.out.println("------------------------------\n");
 
-    	PersonData first = idParticipantMap.get(originalEntry);
-    	PersonData second = idParticipantMap.get(doubleEntry);
+    	SurveyData first = idParticipantMap.get(originalEntry);
+    	SurveyData second = idParticipantMap.get(doubleEntry);
 
     	int maxReach = Math.max(first.internalLength(), second.internalLength());
 
@@ -133,7 +133,7 @@ public class QualtricsDoubleEntryValidation {
 
     	try {
 	    	while ((loadData = TSVFile.readLine()) != null) {
-	    		participantInformation.add(new PersonData(loadData));
+	    		participantInformation.add(new SurveyData(loadData));
 	    	}
 	    } catch (IOException e) {
 	    	System.out.println("DEBUG: Unable to load surveys.");
@@ -162,13 +162,13 @@ public class QualtricsDoubleEntryValidation {
 	    }
     }
 
-    static class PersonData {
-    	private Map<String, String> personData;
+    static class SurveyData {
+    	private Map<String, String> surveyData;
     	private String[] rawData;
     	private int internalLength;
 
-    	public PersonData(String info) {
-    		personData = new TreeMap<>();
+    	public SurveyData(String info) {
+    		surveyData = new TreeMap<>();
     		rawData = info.split(delimiter);
     		internalLength = rawData.length;
     		parseData(rawData);
@@ -177,15 +177,15 @@ public class QualtricsDoubleEntryValidation {
     	private void parseData(String[] personalInformation) {
     		for (int i = 0; i < headerColumns.length; i++) {
     			if (i < personalInformation.length) {
-    				personData.put(headerColumns[i], personalInformation[i].toLowerCase().trim());
+    				surveyData.put(headerColumns[i], personalInformation[i].toLowerCase().trim());
     			} else {
-    				personData.put(headerColumns[i], "");
+    				surveyData.put(headerColumns[i], "");
     			}
     		}
     	}
 
     	public String participantIdentifier() {
-    		String id = personData.get(idString);
+    		String id = surveyData.get(idString);
     		if (id.equals("")) {
     			return "MISSING ID";
     		} else {
