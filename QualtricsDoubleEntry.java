@@ -1,3 +1,14 @@
+/**
+* Qualtrics Double Entry Tool. Work in progress.
+* Takes in a .tsv Qualtrics export file, compares double-entry rows, and identifies mismatched data.
+* Project maintained at https://github.com/LTimothy/QualtricsDoubleEntryValidation
+*
+* Updated at 10/18/19
+*
+* @author Timothy Lee
+*/
+
+
 import java.io.*;
 import java.util.*;
 import java.lang.*;
