@@ -15,116 +15,116 @@ import java.lang.*;
 import java.nio.charset.StandardCharsets;
 
 public class QualtricsDoubleEntryValidation {
-	private static String delimiter = "[\\t]";
-	private static String headerColumns[];
-	private static BufferedReader TSVFile;
-	private static List<SurveyData> participantInformation;
-	private static Map<String, SurveyData> idParticipantMap;
-	private static String idString;
-	private static int idKey;
-	private static String idPrefix;
-	private static Scanner systemInput;
+    private static String delimiter = "[\\t]";
+    private static String headerColumns[];
+    private static BufferedReader TSVFile;
+    private static List<SurveyData> participantInformation;
+    private static Map<String, SurveyData> idParticipantMap;
+    private static String idString;
+    private static int idKey;
+    private static String idPrefix;
+    private static Scanner systemInput;
 
     public static void main(String[] arg) throws Exception {
-    	systemInput = new Scanner(System.in);
+        systemInput = new Scanner(System.in);
 
-    	String filename = promptUser(2);
+        String filename = promptUser(2);
 
-    	try {
-	        TSVFile = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_16));
-	    } catch (Exception e) {
-	    	System.out.println("DEBUG: No file found. Does " + filename + " exist?");
-	    	System.exit(1);
-	    }
+        try {
+            TSVFile = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_16));
+        } catch (Exception e) {
+        	System.out.println("DEBUG: No file found. Does " + filename + " exist?");
+        	System.exit(1);
+        }
 
-	    initializeHeader();
-	    promptUser(0);
-	    promptUser(1);
-    	skipLines(2);
-    	loadSurveys();
-    	analyzeSurveys();
-    	completeStatement();
+        initializeHeader();
+        promptUser(0);
+        promptUser(1);
+        skipLines(2);
+        loadSurveys();
+        analyzeSurveys();
+        completeStatement();
 
-	    if (TSVFile != null) {
-	    	TSVFile.close();
-	    }
+        if (TSVFile != null) {
+        	TSVFile.close();
+        }
     }
 
     private static void analyzeSurveys() {
-    	idParticipantMap = new HashMap<>();
-    	for (int i = 0; i < participantInformation.size(); i++) {
-    		SurveyData data = participantInformation.get(i);
-    		String id = data.participantIdentifier();
-    		idParticipantMap.put(id, data);
-    	}
+        idParticipantMap = new HashMap<>();
+        for (int i = 0; i < participantInformation.size(); i++) {
+            SurveyData data = participantInformation.get(i);
+            String id = data.participantIdentifier();
+            idParticipantMap.put(id, data);
+        }
 
-    	Set<String> participantPool = idParticipantMap.keySet();
-    	if (participantPool.contains("MISSING ID")) {
-    		System.out.println("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
-    	}
+        Set<String> participantPool = idParticipantMap.keySet();
+        if (participantPool.contains("MISSING ID")) {
+        	System.out.println("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
+        }
 
-    	Iterator<String> participants = participantPool.iterator();
-    	while (participants.hasNext()) {
-    		String checking = participants.next();
-    		String lookingFor = idPrefix + checking;
-    		if (participantPool.contains(lookingFor)) {
-    			printOffending(checking, lookingFor);
-    		}
-    	}
+        Iterator<String> participants = participantPool.iterator();
+        while (participants.hasNext()) {
+            String checking = participants.next();
+            String lookingFor = idPrefix + checking;
+            if (participantPool.contains(lookingFor)) {
+            	printOffending(checking, lookingFor);
+            }
+        }
     }
 
     private static void printOffending(String originalEntry, String doubleEntry) {
-    	System.out.println("\n------------------------------");
-    	System.out.println("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-    	System.out.println("------------------------------\n");
+        System.out.println("\n------------------------------");
+        System.out.println("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
+        System.out.println("------------------------------\n");
 
-    	SurveyData first = idParticipantMap.get(originalEntry);
-    	SurveyData second = idParticipantMap.get(doubleEntry);
+        SurveyData first = idParticipantMap.get(originalEntry);
+        SurveyData second = idParticipantMap.get(doubleEntry);
 
-    	int maxReach = Math.max(first.internalLength(), second.internalLength());
+        int maxReach = Math.max(first.internalLength(), second.internalLength());
 
-    	for (int i = 0; i < maxReach; i++) {
-    		if (i != idKey) {
-	    		String firstValue = first.columnData(i);
-	    		String secondValue = second.columnData(i);
-	    		if (!firstValue.equals(secondValue)) {
-	    			System.out.println("COLUMN " + i + " MISMATCH - FOUND:");
-	    			System.out.println("originalEntry: " + firstValue);
-	    			System.out.println("doubleEntry: " + secondValue);
-	    			System.out.println();
-	    		}
-	    	}
-    	}
+        for (int i = 0; i < maxReach; i++) {
+            if (i != idKey) {
+                String firstValue = first.columnData(i);
+                String secondValue = second.columnData(i);
+                if (!firstValue.equals(secondValue)) {
+                    System.out.println("COLUMN " + i + " MISMATCH - FOUND:");
+                    System.out.println("originalEntry: " + firstValue);
+                    System.out.println("doubleEntry: " + secondValue);
+                    System.out.println();
+                }
+            }
+        }
 
     }
 
     private static void completeStatement() {
-    	System.out.println("\n------------------------------");
-    	System.out.println("Analysis Complete. No other records found.");
-    	System.out.println("------------------------------\n");
+        System.out.println("\n------------------------------");
+        System.out.println("Analysis Complete. No other records found.");
+        System.out.println("------------------------------\n");
     }
 
     private static String promptUser(int prompt) {
-    	try {
-	    	switch (prompt) {
-	    		case 0: System.out.print("Where column A is 0, what column is the participant identifier located on: ");
-	    				idKey = systemInput.nextInt();
-	    				idString = headerColumns[idKey];
-	    				systemInput.nextLine();
-	    				break;
-	    		case 1: System.out.print("What are IDs prefixed with for double entry: ");
-	    				idPrefix = systemInput.nextLine().toLowerCase().trim();
-	    				break;
-	    		case 2: System.out.print("What is the name of the file (case-sensitive): ");
-	    				return systemInput.nextLine();
-	    		default: break;
-	    	}
-	    } catch (IndexOutOfBoundsException e) {
-	    	System.out.println("DEBUG: Out of bounds error.");
-	    	System.exit(1);
-	    }
-	    System.out.println();
-	    return "N/A";
+        try {
+            switch (prompt) {
+                case 0: System.out.print("Where column A is 0, what column is the participant identifier located on: ");
+                		idKey = systemInput.nextInt();
+                		idString = headerColumns[idKey];
+                		systemInput.nextLine();
+                		break;
+                case 1: System.out.print("What are IDs prefixed with for double entry: ");
+                		idPrefix = systemInput.nextLine().toLowerCase().trim();
+                		break;
+                case 2: System.out.print("What is the name of the file (case-sensitive): ");
+                		return systemInput.nextLine();
+                default: break;
+        	}
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("DEBUG: Out of bounds error.");
+            System.exit(1);
+        }
+        System.out.println();
+        return "N/A";
     }
 
     private static void loadSurveys() {
