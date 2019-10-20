@@ -50,7 +50,7 @@ public class DoubleEntry extends JFrame
 		Panel prefixPanel = new Panel(new GridLayout(1, 2));
 
 		// Filename Loading
-		JLabel filenameLabel = new JLabel("Enter Filename");
+		JLabel filenameLabel = new JLabel("Select File");
 		filenameLabel.setFont(defaultFont);
 		filenamePanel.add(filenameLabel);
 		fileChooser = new JFileChooser();
@@ -130,6 +130,7 @@ public class DoubleEntry extends JFrame
 		updates.setWrapStyleWord(true);
 		southPanel.add(updates, BorderLayout.SOUTH);
 		updates.setText("Open Source: https://github.com/LTimothy/DoubleEntry");
+		updates.setEditable(false);
 
 		contain.add(southPanel, BorderLayout.CENTER);
 
