@@ -5,8 +5,8 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 
 ### Features
 * Takes in a (.tsv) Qualtrics export file, compares double-entry rows, and identifies mismatched data. 
-* Exports mismatched data to a (.tsv) save file.
-* Basic GUI (user interface)
+* Exports mismatched data to a (.tsv) save file in a simplified format or a full-file format compatable with Qualtrics.
+* Basic GUI (user interface).
 
 ### Instructions
 * Download latest release for your platform. Instructions can be found in the app.
@@ -21,4 +21,4 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 ### Additional Notes
 Work in progress. Created for the Family and Culture Lab at Berkeley, CA as a side-project.
 
-Updated 10/19/19
+Updated 10/20/19
