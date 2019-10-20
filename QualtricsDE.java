@@ -70,7 +70,7 @@ public class QualtricsDE {
                 addParticipantInformation(null, excludedFromMap.get(i));
             }
         }
-        
+
         return results.toString();
     }
 
@@ -108,7 +108,7 @@ public class QualtricsDE {
             String lookingFor = idPrefix + checking;
             if (participantPool.contains(lookingFor)) {
             	printOffending(checking, lookingFor);
-            } else {
+            } else if (saveOption == 1) {
                 addParticipantInformation(checking, null);
             }
         }
@@ -212,6 +212,7 @@ public class QualtricsDE {
             String  line = TSVFile.readLine();
     		headerColumns = line.split(delimiter);
             if (saveOption == 1) {
+                results.delete(0, results.length());
                 results.append(newlineTerminator(line));
             }
 	    } catch (IOException e) {
