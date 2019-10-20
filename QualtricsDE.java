@@ -1,21 +1,10 @@
-/**
-* Qualtrics Double Entry Tool. Work in progress.
-* Takes in a .tsv Qualtrics export file, compares double-entry rows, and identifies mismatched data.
-* Project maintained at https://github.com/LTimothy/QualtricsDoubleEntryValidation
-*
-* Updated on 10/18/19
-*
-* @author Timothy Lee
-*/
-
-
 import java.io.*;
 import java.util.*;
 import java.lang.*;
 import java.nio.charset.StandardCharsets;
 
-public class QualtricsDoubleEntryValidation {
-    private static String delimiter = "[\\t]";
+public class QualtricsDE {
+    private static String delimiter;
     private static String headerColumns[];
     private static BufferedReader TSVFile;
     private static List<SurveyData> participantInformation;
@@ -25,28 +14,36 @@ public class QualtricsDoubleEntryValidation {
     private static String idPrefix;
     private static Scanner systemInput;
 
-    public static void main(String[] arg) throws Exception {
+    // Constructor
+    public QualtricsDE() throws Exception {
         systemInput = new Scanner(System.in);
-
-        String filename = promptUser(2);
+        delimiter = "[\\t]";
+        idKey = -1;
+        String filename = promptUser("What is the name of the file (case-sensitive): ");
 
         try {
             TSVFile = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_16));
         } catch (Exception e) {
-        	System.out.println("DEBUG: No file found. Does " + filename + " exist?");
-        	System.exit(1);
+            System.out.println("DEBUG: No file found. Does " + filename + " exist?");
+            System.exit(1);
         }
 
         initializeHeader();
-        promptUser(0);
-        promptUser(1);
+
+        idKey = Integer.valueOf(promptUser("Where column A is 0, what column is the participant identifier located on: "));
+        while (idKey == -1 || idKey > headerColumns.length) {
+            System.out.println("NOTICE: Invalid ID Column. Try again.");
+            idKey = Integer.valueOf(promptUser("Where column A is 0, what column is the participant identifier located on: "));
+        }
+        idPrefix = promptUser("What are IDs prefixed with for double entry: ").toLowerCase().trim();
+
         skipLines(2);
         loadSurveys();
         analyzeSurveys();
         completeStatement();
 
         if (TSVFile != null) {
-        	TSVFile.close();
+            TSVFile.close();
         }
     }
 
@@ -104,27 +101,11 @@ public class QualtricsDoubleEntryValidation {
         System.out.println("------------------------------\n");
     }
 
-    private static String promptUser(int prompt) {
-        try {
-            switch (prompt) {
-                case 0: System.out.print("Where column A is 0, what column is the participant identifier located on: ");
-                		idKey = systemInput.nextInt();
-                		idString = headerColumns[idKey];
-                		systemInput.nextLine();
-                		break;
-                case 1: System.out.print("What are IDs prefixed with for double entry: ");
-                		idPrefix = systemInput.nextLine().toLowerCase().trim();
-                		break;
-                case 2: System.out.print("What is the name of the file (case-sensitive): ");
-                		return systemInput.nextLine();
-                default: break;
-        	}
-        } catch (IndexOutOfBoundsException e) {
-            System.out.println("DEBUG: Out of bounds error.");
-            System.exit(1);
-        }
+    private static String promptUser(String prompt) {
+        System.out.print(prompt);
+        String data = systemInput.nextLine();
         System.out.println();
-        return "N/A";
+        return data;
     }
 
     private static void loadSurveys() {
@@ -133,7 +114,7 @@ public class QualtricsDoubleEntryValidation {
 
     	try {
 	    	while ((loadData = TSVFile.readLine()) != null) {
-	    		participantInformation.add(new SurveyData(loadData));
+	    		participantInformation.add(new SurveyData(headerColumns, loadData, delimiter, idKey));
 	    	}
 	    } catch (IOException e) {
 	    	System.out.println("DEBUG: Unable to load surveys.");
@@ -160,48 +141,5 @@ public class QualtricsDoubleEntryValidation {
 	    	System.out.println("DEBUG: Attempted to skip more lines than file has remaining.");
 	    	System.exit(1);
 	    }
-    }
-
-    static class SurveyData {
-    	private Map<String, String> surveyData;
-    	private String[] rawData;
-    	private int internalLength;
-
-    	public SurveyData(String info) {
-    		surveyData = new TreeMap<>();
-    		rawData = info.split(delimiter);
-    		internalLength = rawData.length;
-    		parseData(rawData);
-    	}
-
-    	private void parseData(String[] personalInformation) {
-    		for (int i = 0; i < headerColumns.length; i++) {
-    			if (i < personalInformation.length) {
-    				surveyData.put(headerColumns[i], personalInformation[i].toLowerCase().trim());
-    			} else {
-    				surveyData.put(headerColumns[i], "");
-    			}
-    		}
-    	}
-
-    	public String participantIdentifier() {
-    		String id = surveyData.get(idString);
-    		if (id.equals("")) {
-    			return "MISSING ID";
-    		} else {
-    			return id;
-    		}
-    	}
-
-    	public int internalLength() {
-    		return internalLength;
-    	}
-
-    	public String columnData(int column) {
-    		if (column < internalLength) {
-    			return rawData[column];
-    		}
-    		return "";
-    	}
     }
 }
