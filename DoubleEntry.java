@@ -1,10 +1,15 @@
 /**
  * Double Entry Validation Tool (WIP).
  *
- * Copyright 2019, Timothy Lee, All rights reserved.
- * Licensed under GNU General Public License v3.0
+ * Copyright (C) 2019 Timothy Lee - All Rights Reserved
+ * You may use, distribute and modify this code under the
+ * terms of the GNU General Public License v3.0.
  *
- * @source: https://github.com/LTimothy/DoubleEntry
+ * You should have received a copy of the GNU General
+ * Public License v3.0 with this file. If not, please
+ * contact: timothyl@berkeley.edu, or visit:
+ * https://github.com/LTimothy/DoubleEntry
+ *
  * @author: Timothy Lee (https://timothylee.us)
  */
 
@@ -16,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DoubleEntry extends JFrame
 {
-	// GUI Elements
+	// GUI Elementss
 	private static JTextArea status;
 	private static JCheckBox saveFullExport;
 	private JTextField columnText;
