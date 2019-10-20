@@ -1,11 +1,11 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.*;
 
 public class DoubleEntry extends JFrame
 {
 	// GUI Elements
-	private JTextField filenameText;
 	private JTextField columnText;
 	private JTextField prefixText;
 	private JTextArea status;
@@ -36,14 +36,10 @@ public class DoubleEntry extends JFrame
 		JLabel filenameLabel = new JLabel("Enter Filename");
 		filenameLabel.setFont(defaultFont);
 		filenamePanel.add(filenameLabel);
-		filenameText = new JTextField(20);
-		filenameText.setFont(defaultFont);
-		filenameText.setEditable(true);
-		// filenamePanel.add(filenameText);
 		fileChooser = new JFileChooser();
 		JButton openButton = new JButton("Open File...");
-		this.file = null;
 		openButton.addActionListener(new FileListener());
+		filenamePanel.add(openButton);
 
 		// Column loading
 		JLabel columnLabel = new JLabel("Enter ID Column # (0-indexed)");
@@ -120,8 +116,12 @@ public class DoubleEntry extends JFrame
 		public void actionPerformed(ActionEvent evt) {
 			String label = evt.getActionCommand();
 			if (label.equals("Open File...")) {
-				file = fc.getSelectedFile();
-				filename = file.getName();
+				int validity = fileChooser.showOpenDialog(DoubleEntry.this);
+				if (validity == JFileChooser.APPROVE_OPTION) {
+					file = fileChooser.getSelectedFile();
+					filename = file.getName();
+					status.setText("Load Succesful");
+				}
 			} else {
 				// No Save Functionality Yet
 			}
@@ -145,7 +145,6 @@ public class DoubleEntry extends JFrame
 		public void actionPerformed(ActionEvent evt) {
 			String label = evt.getActionCommand();
 			if (label.equals("Submit")) {
-				filename = filenameText.getText();
 				String idText;
 				try {
 					idText = columnText.getText();
