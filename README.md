@@ -8,7 +8,7 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 * Exports mismatched data to a (.tsv) save file.
 * Basic GUI (user interface)
 
-#### Instructions
+### Instructions
 * Download latest release for your platform. Instructions can be found in the app.
 
 ### To Do
