@@ -23,11 +23,11 @@ public class QualtricsDE {
     private static String saveDelimiter;
 
     // Constructor
-    public QualtricsDE(int idColumn, String idPrefix, File file) throws Exception {
-        delimiter = "[\\t]";
+    public QualtricsDE(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter) throws Exception {
+        this.delimiter = delimiter;
+        this.saveDelimiter = saveDelimiter;
         numSaved = 0;
         results = new StringBuffer();
-        saveDelimiter = "\t";
 
         try {
             TSVFile = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));

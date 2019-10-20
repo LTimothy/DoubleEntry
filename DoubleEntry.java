@@ -71,7 +71,7 @@ public class DoubleEntry extends JFrame
 		northPanel.add(columnPanel);
 		northPanel.add(prefixPanel);
 
-		// Instructions/Submit/Clear Buttons
+		// Instructions/Analyze/Clear Buttons
 		JButton instructionsBtn = new JButton("Instructions");
 		instructionsBtn.setFont(defaultFont);
 		instructionsBtn.addActionListener(listener);
@@ -81,10 +81,10 @@ public class DoubleEntry extends JFrame
 		clearBtn.setFont(defaultFont);
 		clearBtn.addActionListener(listener);
 		buttonPanel.add(clearBtn);
-		JButton submitBtn = new JButton("Submit");
-		submitBtn.setFont(defaultFont);
-		submitBtn.addActionListener(listener);
-		buttonPanel.add(submitBtn);
+		JButton analyzeBtn = new JButton("Analyze");
+		analyzeBtn.setFont(defaultFont);
+		analyzeBtn.addActionListener(listener);
+		buttonPanel.add(analyzeBtn);
 		JButton saveButton = new JButton("Save");
 		saveButton.setFont(defaultFont);
 		saveButton.addActionListener(new FileListener());
@@ -93,11 +93,11 @@ public class DoubleEntry extends JFrame
 
 		contain.add(northPanel, BorderLayout.NORTH);
 
-		// SOUTH PANEL
+		// CENTER PANEL
 		Panel southPanel = new Panel(new BorderLayout());
 
 		// Status Panel
-		status = new JTextArea(15, 40);
+		status = new JTextArea();
 		status.setFont(defaultFont);
 		status.setLineWrap(true);
 		status.setWrapStyleWord(true);
@@ -112,13 +112,13 @@ public class DoubleEntry extends JFrame
 		southPanel.add(updates, BorderLayout.SOUTH);
 		updates.setText("Open Source: https://github.com/LTimothy/DoubleEntry");
 
-		contain.add(southPanel, BorderLayout.SOUTH);
+		contain.add(southPanel, BorderLayout.CENTER);
 
 
 		// Container Setup
 		setTitle("Double Entry");
 		//setSize(250, 100);
-		setBounds(100, 100, 400, 400);
+		setBounds(100, 100, 500, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -185,7 +185,7 @@ public class DoubleEntry extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			String label = evt.getActionCommand();
-			if (label.equals("Submit")) {
+			if (label.equals("Analyze")) {
 				String idText;
 				try {
 					idText = columnText.getText();
@@ -210,8 +210,8 @@ public class DoubleEntry extends JFrame
 				status.setText("----------Basic Instructions----------\n");
 				status.append("1. Select File\n");
 				status.append("2. Enter the column your participant identifier is in. This is 0-indexed, meaning that if your ID is in column \"A\" in Excel, you should enter: 0\n");
-				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\", please enter: X_\n");
-				status.append("4. Submit\n5. Save (if desired)\n");
+				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\" (so that we have X_######), please enter: X_\n");
+				status.append("4. Select \"Analyze\"\n5. Save (if desired)\n");
 				status.append("\n----------Additional Notes----------\n");
 				status.append("* The Qualtrics Export Format in .tsv should have variable names on row 1, variable descriptions on row 2-3, and records following those. Data must match this format.\n");
 				status.append("* If some columns contain data you do not want compared over records, please remove these columns before processing the file.\n");
@@ -231,7 +231,7 @@ public class DoubleEntry extends JFrame
 
 	private static void runQualtricsDE() {
 		try {
-			new QualtricsDE(idColumn, idPrefix, file);
+			new QualtricsDE(idColumn, idPrefix, file, "[\\t]", "\t");
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDE.\n");
 		}
