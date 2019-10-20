@@ -119,6 +119,7 @@ public class DoubleEntry extends JFrame
 		status.setFont(defaultFont);
 		status.setLineWrap(true);
 		status.setWrapStyleWord(true);
+		status.setEditable(false);
 		JScrollPane statusLog = new JScrollPane(status);
 		southPanel.add(statusLog, BorderLayout.CENTER);
 
