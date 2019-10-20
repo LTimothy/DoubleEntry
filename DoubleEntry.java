@@ -1,6 +1,9 @@
 /**
  * Double Entry Validation Tool (WIP).
  *
+ * Copyright 2019, Timothy Lee, All rights reserved.
+ * Licensed under GNU General Public License v3.0
+ *
  * @source: https://github.com/LTimothy/DoubleEntry
  * @author: Timothy Lee (https://timothylee.us)
  */
