@@ -9,7 +9,6 @@ public class QualtricsDE {
     private static BufferedReader TSVFile;
     private static List<SurveyData> participantInformation;
     private static Map<String, SurveyData> idParticipantMap;
-    private static String idString;
     private static int idKey;
     private static String idPrefix;
     private static Scanner systemInput;

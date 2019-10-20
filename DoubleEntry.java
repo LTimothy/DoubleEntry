@@ -4,23 +4,43 @@ import javax.swing.*;
 
 public class DoubleEntry extends JFrame
 {
-	JPanel pane = new JPanel();
+	private Label filenameLabel;    // Declare a Label component 
+	private TextField filenameText; // Declare a TextField component 
+	private Button filenameBtn;   // Declare a Button component
+	private String filename;
 
-	public DoubleEntry() // the frame constructor method
-	{
-		super("My Simple Frame"); setBounds(100,100,300,100);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Container con = this.getContentPane(); // inherit main frame
-		con.add(pane); // add the panel to frame
-		// customize panel here
-		// pane.add(someWidget);
-		setVisible(true); // display this frame
+	public DoubleEntry() {
+		setLayout(new FlowLayout());
+
+		// Filename Loading
+		filenameLabel = new Label("Enter Filename");
+		add(filenameLabel);
+
+		filenameText = new TextField(20);
+		filenameText.setEditable(true);
+		add(filenameText);
+
+		filenameBtn = new Button("Submit");
+		filenameBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				filename = filenameText.getText();
+				System.out.println(filename);
+			}
+		});
+		add(filenameBtn);
+
+		setTitle("Double Entry");
+		//setSize(250, 100);
+		setBounds(100, 100, 400, 400);
+
+		setVisible(true);
 	}
 
 	public static void main (String args[]) {
-		new DoubleEntry();
+		DoubleEntry instance = new DoubleEntry();
 		try {
-			new QualtricsDE();
+			// new QualtricsDE();
 		} catch (Exception e) {
 			System.out.println("Failed to run QualtricsDE.");
 		}
