@@ -1,3 +1,10 @@
+/**
+ * Survey Data Object (WIP). Represents Individual Participants.
+ *
+ * @source: https://github.com/LTimothy/DoubleEntry
+ * @author: Timothy Lee (https://timothylee.us)
+ */
+
 import java.util.*;
 
 class SurveyData {

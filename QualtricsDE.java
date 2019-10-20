@@ -1,3 +1,10 @@
+/**
+ * Qualtrics Double Entry Validation Logic (WIP).
+ *
+ * @source: https://github.com/LTimothy/DoubleEntry
+ * @author: Timothy Lee (https://timothylee.us)
+ */
+
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -11,13 +18,16 @@ public class QualtricsDE {
     private static Map<String, SurveyData> idParticipantMap;
     private static int idKey;
     private static String idPrefix;
-    private static Scanner systemInput;
+    private static int numSaved;
+    private static StringBuffer results;
+    private static String saveDelimiter;
 
     // Constructor
     public QualtricsDE(int idColumn, String idPrefix, File file) throws Exception {
-        systemInput = new Scanner(System.in);
         delimiter = "[\\t]";
-        idKey = -1;
+        numSaved = 0;
+        results = new StringBuffer();
+        saveDelimiter = "\t";
 
         try {
             TSVFile = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));
@@ -41,6 +51,14 @@ public class QualtricsDE {
         if (TSVFile != null) {
             TSVFile.close();
         }
+    }
+
+    public static String saveResult() {
+        if (numSaved == 0 || results == null || results.equals("")) {
+            DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
+            return "";
+        }
+        return results.toString();
     }
 
     private static void analyzeSurveys() {
@@ -78,10 +96,6 @@ public class QualtricsDE {
     }
 
     private static void printOffending(String originalEntry, String doubleEntry) {
-        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
-        DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
-
         SurveyData first = idParticipantMap.get(originalEntry);
         SurveyData second = idParticipantMap.get(doubleEntry);
 
@@ -90,18 +104,36 @@ public class QualtricsDE {
         String origPrint = "ID- " + originalEntry + ": ";
         String doubPrint = "ID- " + doubleEntry + ": ";
 
+        boolean savedSomething = false;
+
         for (int i = 0; i < maxReach; i++) {
             if (i != idKey) {
                 String firstValue = first.columnData(i);
                 String secondValue = second.columnData(i);
                 if (!firstValue.equals(secondValue)) {
-                    DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + " MISMATCH - FOUND:\n");
+                    if (savedSomething == false) {
+                        if (numSaved == 0) {
+                            results.append("Original ID" + saveDelimiter + "Double Entry ID" + saveDelimiter + "Mismatched Column Name" + saveDelimiter + "Mismatched Column Index" + saveDelimiter + "Original Data" + saveDelimiter + "Double Entry Data\n");
+                        }
+                        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
+                        DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
+                        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
+                        savedSomething = true;
+                    } else {
+                        results.append("\n");
+                    }
+                    DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + ") MISMATCH - FOUND:\n");
                     DoubleEntry.appendStatus(origPrint + firstValue + "\n");
                     DoubleEntry.appendStatus(doubPrint + secondValue + "\n");
+                    results.append(originalEntry + saveDelimiter + doubleEntry + saveDelimiter + headerColumns[i] + saveDelimiter + i + saveDelimiter + firstValue + saveDelimiter + secondValue);
                 }
             }
         }
 
+        if (savedSomething) {
+            results.append("\n");
+            numSaved++;
+        }
     }
 
     private static void completeStatement() {

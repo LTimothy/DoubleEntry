@@ -1,3 +1,10 @@
+/**
+ * Double Entry Validation Tool (WIP).
+ *
+ * @source: https://github.com/LTimothy/DoubleEntry
+ * @author: Timothy Lee (https://timothylee.us)
+ */
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -30,7 +37,7 @@ public class DoubleEntry extends JFrame
 		Panel filenamePanel = new Panel(new GridLayout(1, 2));
 		Panel columnPanel = new Panel(new GridLayout(1, 2));
 		Panel prefixPanel = new Panel(new GridLayout(1, 2));
-		Panel buttonPanel = new Panel(new GridLayout(1, 2));
+		Panel buttonPanel = new Panel(new GridLayout(1, 4));
 
 		// Filename Loading
 		JLabel filenameLabel = new JLabel("Enter Filename");
@@ -38,6 +45,7 @@ public class DoubleEntry extends JFrame
 		filenamePanel.add(filenameLabel);
 		fileChooser = new JFileChooser();
 		JButton openButton = new JButton("Open File...");
+		openButton.setFont(defaultFont);
 		openButton.addActionListener(new FileListener());
 		filenamePanel.add(openButton);
 
@@ -77,6 +85,10 @@ public class DoubleEntry extends JFrame
 		submitBtn.setFont(defaultFont);
 		submitBtn.addActionListener(listener);
 		buttonPanel.add(submitBtn);
+		JButton saveButton = new JButton("Save");
+		saveButton.setFont(defaultFont);
+		saveButton.addActionListener(new FileListener());
+		buttonPanel.add(saveButton);
 		northPanel.add(buttonPanel);
 
 		contain.add(northPanel, BorderLayout.NORTH);
@@ -85,7 +97,7 @@ public class DoubleEntry extends JFrame
 		Panel southPanel = new Panel(new BorderLayout());
 
 		// Status Panel
-		status = new JTextArea(15, 10);
+		status = new JTextArea(15, 40);
 		status.setFont(defaultFont);
 		status.setLineWrap(true);
 		status.setWrapStyleWord(true);
@@ -115,32 +127,57 @@ public class DoubleEntry extends JFrame
 		status.append(text);
 	}
 
+	private boolean supportedExtension(boolean read, String filename) {
+		if (read) {
+			if (filename.endsWith(".tsv")) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if (filename.endsWith(".tsv")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
 	private class FileListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			String label = evt.getActionCommand();
 			if (label.equals("Open File...")) {
 				int validity = fileChooser.showOpenDialog(DoubleEntry.this);
-				if (validity == JFileChooser.APPROVE_OPTION) {
+				if (validity == JFileChooser.APPROVE_OPTION && supportedExtension(true, fileChooser.getSelectedFile().getName())) {
 					file = fileChooser.getSelectedFile();
 					filename = file.getName();
-					status.setText("Load Succesful\n");
+					status.setText("Load Succesful.\n");
+				} else {
+					status.setText("Load Failure.\n");
 				}
 			} else {
-				// No Save Functionality Yet
+				int validity = fileChooser.showSaveDialog(DoubleEntry.this);
+				if (validity == JFileChooser.APPROVE_OPTION) {
+					boolean failed = false;
+					try {
+						File file = fileChooser.getSelectedFile();
+						FileWriter fileW = new FileWriter(file);
+						String results = QualtricsDE.saveResult();
+						fileW.write(results, 0, results.length());
+						fileW.close();
+					} catch (IOException e) {
+						failed = true;
+					}
+					if (!failed) {
+						status.setText("Save Successful.\n");
+					} else {
+						status.setText("Save Failure.\n");
+					}
+				} else {
+					status.setText("Save Failure. Is your file in a supported filetype? (.tsv)\n");
+				}
 			}
-			/*
-	        } else if (e.getSource() == saveButton) {
-	            int returnVal = fc.showSaveDialog(FileChooserDemo.this);
-	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = fc.getSelectedFile();
-	                //This is where a real application would save the file.
-	                log.append("Saving: " + file.getName() + "." + newline);
-	            } else {
-	                log.append("Save command cancelled by user." + newline);
-	            }
-	            log.setCaretPosition(log.getDocument().getLength());
-	        } */
 		}
 	}
 
@@ -170,10 +207,15 @@ public class DoubleEntry extends JFrame
 				idPrefix = "";
 				file = null;
 			} else if (label.equals("Instructions")) {
-				status.setText("");
+				status.setText("----------Basic Instructions----------\n");
 				status.append("1. Select File\n");
 				status.append("2. Enter the column your participant identifier is in. This is 0-indexed, meaning that if your ID is in column \"A\" in Excel, you should enter: 0\n");
 				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\", please enter: X_\n");
+				status.append("4. Submit\n5. Save (if desired)\n");
+				status.append("\n----------Additional Notes----------\n");
+				status.append("* The Qualtrics Export Format in .tsv should have variable names on row 1, variable descriptions on row 2-3, and records following those. Data must match this format.\n");
+				status.append("* If some columns contain data you do not want compared over records, please remove these columns before processing the file.\n");
+				status.append("* Do not alter rows 1-3 containing variable information from Qualtrics.\n");
 			}
 		}
 	}
@@ -191,7 +233,7 @@ public class DoubleEntry extends JFrame
 		try {
 			new QualtricsDE(idColumn, idPrefix, file);
 		} catch (Exception e) {
-			System.out.println("Failed to run QualtricsDE.");
+			appendStatus("\nFailed to run QualtricsDE.\n");
 		}
 	}
 }
