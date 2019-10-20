@@ -4,41 +4,150 @@ import javax.swing.*;
 
 public class DoubleEntry extends JFrame
 {
-	private Label filenameLabel;    // Declare a Label component 
-	private TextField filenameText; // Declare a TextField component 
-	private Button filenameBtn;   // Declare a Button component
+	// private Label filenameLabel;    // Declare a Label component 
+	private JTextField filenameText;
+	private JTextField columnText;
+	private JTextField prefixText;
+	private JTextArea status;
+	private JButton submitBtn;   // Declare a Button component
 	private String filename;
+	private int idColumn;
+	private Font defaultFont;
+	private String idPrefix;
 
 	public DoubleEntry() {
-		setLayout(new FlowLayout());
+		Container contain = getContentPane();
+		contain.setLayout(new BorderLayout());
+		defaultFont = new Font("Serif", Font.PLAIN, 12);
+		ButtonListener listener = new ButtonListener();
+
+		// NORTH PANEL
+		Panel northPanel = new Panel(new GridLayout(4, 1));
+		Panel filenamePanel = new Panel(new GridLayout(1, 2));
+		Panel columnPanel = new Panel(new GridLayout(1, 2));
+		Panel prefixPanel = new Panel(new GridLayout(1, 2));
+		Panel buttonPanel = new Panel(new GridLayout(1, 2));
 
 		// Filename Loading
-		filenameLabel = new Label("Enter Filename");
-		add(filenameLabel);
-
-		filenameText = new TextField(20);
+		JLabel filenameLabel = new JLabel("Enter Filename");
+		filenameLabel.setFont(defaultFont);
+		filenamePanel.add(filenameLabel);
+		filenameText = new JTextField(20);
+		filenameText.setFont(defaultFont);
 		filenameText.setEditable(true);
-		add(filenameText);
+		filenamePanel.add(filenameText);
 
-		filenameBtn = new Button("Submit");
-		filenameBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				filename = filenameText.getText();
-				System.out.println(filename);
-			}
-		});
-		add(filenameBtn);
+		// Column loading
+		JLabel columnLabel = new JLabel("Enter ID Column (let A by 0)");
+		columnLabel.setFont(defaultFont);
+		columnPanel.add(columnLabel);
+		columnText = new JTextField(20);
+		columnText.setFont(defaultFont);
+		columnText.setEditable(true);
+		columnPanel.add(columnText);
+
+		// Prefix loading
+		JLabel prefixLabel = new JLabel("Enter ID Prefix (e.g. X_ for X_IDNUM)");
+		prefixLabel.setFont(defaultFont);
+		prefixPanel.add(prefixLabel);
+		prefixText = new JTextField(20);
+		prefixText.setFont(defaultFont);
+		prefixText.setEditable(true);
+		prefixPanel.add(prefixText);
+
+		northPanel.add(filenamePanel);
+		northPanel.add(columnPanel);
+		northPanel.add(prefixPanel);
+
+		// Instructions/Submit/Clear Buttons
+		JButton instructionsBtn = new JButton("Instructions");
+		instructionsBtn.setFont(defaultFont);
+		instructionsBtn.addActionListener(listener);
+		buttonPanel.add(instructionsBtn);
+		northPanel.add(buttonPanel);
+		JButton clearBtn = new JButton("Clear");
+		clearBtn.setFont(defaultFont);
+		clearBtn.addActionListener(listener);
+		buttonPanel.add(clearBtn);
+		JButton submitBtn = new JButton("Submit");
+		submitBtn.setFont(defaultFont);
+		submitBtn.addActionListener(listener);
+		buttonPanel.add(submitBtn);
+		northPanel.add(buttonPanel);
+
+		contain.add(northPanel, BorderLayout.NORTH);
+
+		// SOUTH PANEL
+		Panel southPanel = new Panel(new BorderLayout());
+
+		// Status Panel
+		status = new JTextArea(15, 10);
+		status.setFont(defaultFont);
+		status.setLineWrap(true);
+		status.setWrapStyleWord(true);
+		JScrollPane statusLog = new JScrollPane(status);
+		southPanel.add(statusLog, BorderLayout.CENTER);
+
+		// Project Maintenance
+		JTextArea updates = new JTextArea();
+		updates.setFont(defaultFont);
+		updates.setLineWrap(true);
+		updates.setWrapStyleWord(true);
+		southPanel.add(updates, BorderLayout.SOUTH);
+		updates.setText("Open Source: https://github.com/LTimothy/DoubleEntry");
+
+		contain.add(southPanel, BorderLayout.SOUTH);
+
 
 		setTitle("Double Entry");
 		//setSize(250, 100);
 		setBounds(100, 100, 400, 400);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		setVisible(true);
 	}
 
+	private class ButtonListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			String label = evt.getActionCommand();
+			if (label.equals("Submit")) {
+				filename = filenameText.getText();
+				String idText;
+				try {
+					idText = columnText.getText();
+					idColumn = Integer.valueOf(idText);
+				} catch (NumberFormatException e) {
+					idText = "Invalid Number";
+				}
+
+				idPrefix = prefixText.getText();
+				status.setText("");
+				status.append("Filename: " + filename + "\n");
+				status.append("ID Column #: " + idText + "\n");
+				status.append("Prefix: " + idPrefix + "\n");
+			} else if (label.equals("Clear")) {
+				status.setText("");
+				filename = "";
+				idColumn = 0;
+				idPrefix = "";
+			} else if (label.equals("Instructions")) {
+				status.setText("");
+				status.append("1. Select File\n");
+				status.append("2. Enter the column your participant identifier is in. This is 0-indexed, meaning that if your ID is in column \"A\" in Excel, you should enter: 0\n");
+				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\", please enter: X_");
+			}
+		}
+	}
+
 	public static void main (String args[]) {
-		DoubleEntry instance = new DoubleEntry();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new DoubleEntry();
+			}
+		});
+		// DoubleEntry instance = new DoubleEntry();
 		try {
 			// new QualtricsDE();
 		} catch (Exception e) {
