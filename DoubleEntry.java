@@ -126,7 +126,6 @@ public class DoubleEntry extends JFrame
 
 		// Container Setup
 		setTitle("Double Entry");
-		//setSize(250, 100);
 		setBounds(100, 100, 500, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);

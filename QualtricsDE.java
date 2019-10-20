@@ -64,11 +64,13 @@ public class QualtricsDE {
             DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
             return "";
         }
+
         if (saveOption == 1) {
             for (int i = 0; i < excludedFromMap.size(); i++) {
                 addParticipantInformation(null, excludedFromMap.get(i));
             }
         }
+        
         return results.toString();
     }
 
@@ -86,6 +88,7 @@ public class QualtricsDE {
             }
             idParticipantMap.put(id, data);
         }
+
         if (printDuplicate) {
             DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur.\n");
         }
@@ -219,7 +222,7 @@ public class QualtricsDE {
     private static void skipLines(int lines) {
     	try {
 	    	while (lines > 0) {
-	    		if (saveOption == 1) {
+                if (saveOption == 1) {
                     results.append(newlineTerminator(TSVFile.readLine()));
                 } else {
                     TSVFile.readLine();
