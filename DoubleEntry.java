@@ -9,11 +9,13 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class DoubleEntry extends JFrame
 {
 	// GUI Elements
 	private static JTextArea status;
+	private static JCheckBox saveFullExport;
 	private JTextField columnText;
 	private JTextField prefixText;
 	private JFileChooser fileChooser;
@@ -33,11 +35,10 @@ public class DoubleEntry extends JFrame
 		ButtonListener listener = new ButtonListener();
 
 		// NORTH PANEL
-		Panel northPanel = new Panel(new GridLayout(4, 1));
+		Panel northPanel = new Panel(new GridLayout(5, 1));
 		Panel filenamePanel = new Panel(new GridLayout(1, 2));
 		Panel columnPanel = new Panel(new GridLayout(1, 2));
 		Panel prefixPanel = new Panel(new GridLayout(1, 2));
-		Panel buttonPanel = new Panel(new GridLayout(1, 4));
 
 		// Filename Loading
 		JLabel filenameLabel = new JLabel("Enter Filename");
@@ -71,7 +72,15 @@ public class DoubleEntry extends JFrame
 		northPanel.add(columnPanel);
 		northPanel.add(prefixPanel);
 
+		// Checkbox Panel
+		Panel checkboxPanel = new Panel(new GridLayout(1, 2));
+		saveFullExport = new JCheckBox("Export as Full Data");
+		saveFullExport.setFont(defaultFont);
+		checkboxPanel.add(saveFullExport);
+		northPanel.add(checkboxPanel);
+
 		// Instructions/Analyze/Clear Buttons
+		Panel buttonPanel = new Panel(new GridLayout(1, 4));
 		JButton instructionsBtn = new JButton("Instructions");
 		instructionsBtn.setFont(defaultFont);
 		instructionsBtn.addActionListener(listener);
@@ -152,9 +161,9 @@ public class DoubleEntry extends JFrame
 				if (validity == JFileChooser.APPROVE_OPTION && supportedExtension(true, fileChooser.getSelectedFile().getName())) {
 					file = fileChooser.getSelectedFile();
 					filename = file.getName();
-					status.setText("Load Succesful.\n");
+					status.setText("NOTICE: Load Succesful.\n");
 				} else {
-					status.setText("Load Failure.\n");
+					status.setText("NOTICE: Load Failure.\n");
 				}
 			} else {
 				int validity = fileChooser.showSaveDialog(DoubleEntry.this);
@@ -162,20 +171,24 @@ public class DoubleEntry extends JFrame
 					boolean failed = false;
 					try {
 						File file = fileChooser.getSelectedFile();
-						FileWriter fileW = new FileWriter(file);
+						FileWriter fileW = new FileWriter(file, StandardCharsets.UTF_16);
 						String results = QualtricsDE.saveResult();
 						fileW.write(results, 0, results.length());
 						fileW.close();
 					} catch (IOException e) {
 						failed = true;
 					}
+					status.setText("NOTICE: Make sure to \"Analyze\" before saving!\n");
+					if (saveFullExport.isSelected()) {
+						status.append("NOTICE: For full export, be sure to run \"Analyze\" again after checking the box!\n");
+					}
 					if (!failed) {
-						status.setText("Save Successful.\n");
+						status.append("NOTICE: Save Successful.\n");
 					} else {
-						status.setText("Save Failure.\n");
+						status.append("NOTICE: Save Failure.\n");
 					}
 				} else {
-					status.setText("Save Failure. Is your file in a supported filetype? (.tsv)\n");
+					status.setText("ERROR: Save Failure. Is your file in a supported filetype? (.tsv)\n");
 				}
 			}
 		}
@@ -210,12 +223,15 @@ public class DoubleEntry extends JFrame
 				status.setText("----------Basic Instructions----------\n");
 				status.append("1. Select File\n");
 				status.append("2. Enter the column your participant identifier is in. This is 0-indexed, meaning that if your ID is in column \"A\" in Excel, you should enter: 0\n");
-				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\" (so that we have X_######), please enter: X_\n");
+				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\" (so that we have X_#####), please enter: X_\n");
 				status.append("4. Select \"Analyze\"\n5. Save (if desired)\n");
 				status.append("\n----------Additional Notes----------\n");
 				status.append("* The Qualtrics Export Format in .tsv should have variable names on row 1, variable descriptions on row 2-3, and records following those. Data must match this format.\n");
 				status.append("* If some columns contain data you do not want compared over records, please remove these columns before processing the file.\n");
 				status.append("* Do not alter rows 1-3 containing variable information from Qualtrics.\n");
+				status.append("* There is no guarantee of ordering of data in the save file.\n");
+				status.append("* Export as full file requires the user to press \"Analyze\" and then \"Save\" after checking the box.\n");
+				status.append("* Export as full file will replace mismatched locations in the output with \"MISMATCH WITH [prefixed-ID]\"\n");
 			}
 		}
 	}
@@ -231,7 +247,11 @@ public class DoubleEntry extends JFrame
 
 	private static void runQualtricsDE() {
 		try {
-			new QualtricsDE(idColumn, idPrefix, file, "[\\t]", "\t");
+			int saveOption = 0;
+			if (saveFullExport.isSelected()) {
+				saveOption = 1;
+			}
+			new QualtricsDE(idColumn, idPrefix, file, "[\\t]", "\t", saveOption);
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDE.\n");
 		}

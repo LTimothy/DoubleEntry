@@ -15,24 +15,30 @@ public class QualtricsDE {
     private static String headerColumns[];
     private static BufferedReader TSVFile;
     private static List<SurveyData> participantInformation;
+    private static List<SurveyData> excludedFromMap;
     private static Map<String, SurveyData> idParticipantMap;
     private static int idKey;
     private static String idPrefix;
     private static int numSaved;
-    private static StringBuffer results;
+    private static StringBuilder results;
     private static String saveDelimiter;
+    private static int saveOption;
+    private static File inputFile;
 
     // Constructor
-    public QualtricsDE(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter) throws Exception {
+    public QualtricsDE(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter, int saveOption) throws Exception {
         this.delimiter = delimiter;
         this.saveDelimiter = saveDelimiter;
+        this.saveOption = saveOption;
         numSaved = 0;
-        results = new StringBuffer();
+        results = new StringBuilder();
+        excludedFromMap = new ArrayList<>();
+        this.inputFile = file;
 
         try {
             TSVFile = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));
         } catch (Exception e) {
-            DoubleEntry.appendStatus("ERROR: No File Found. Does " + file.getName() + " exist?\n");
+            DoubleEntry.appendStatus("ERROR: No file found. Does " + file.getName() + " exist?\n");
         }
 
         initializeHeader();
@@ -58,6 +64,11 @@ public class QualtricsDE {
             DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
             return "";
         }
+        if (saveOption == 1) {
+            for (int i = 0; i < excludedFromMap.size(); i++) {
+                addParticipantInformation(null, excludedFromMap.get(i));
+            }
+        }
         return results.toString();
     }
 
@@ -69,6 +80,9 @@ public class QualtricsDE {
             String id = data.participantIdentifier();
             if (!printDuplicate && idParticipantMap.containsKey(id) && id != "MISSING ID") {
                 printDuplicate = true;
+            }
+            if (saveOption == 1 && idParticipantMap.containsKey(id)) {
+                excludedFromMap.add(idParticipantMap.get(id));
             }
             idParticipantMap.put(id, data);
         }
@@ -91,8 +105,23 @@ public class QualtricsDE {
             String lookingFor = idPrefix + checking;
             if (participantPool.contains(lookingFor)) {
             	printOffending(checking, lookingFor);
+            } else {
+                addParticipantInformation(checking, null);
             }
         }
+    }
+
+    private static void addParticipantInformation(String surveyId, SurveyData data) {
+        SurveyData userId;
+        if (data != null) {
+            userId = data;
+        } else {
+            userId = idParticipantMap.get(surveyId);
+        }
+        for (int i = 0; i < headerColumns.length; i++) {
+            results.append(userId.columnData(i) + saveDelimiter);
+        }
+        results.append("\n");
     }
 
     private static void printOffending(String originalEntry, String doubleEntry) {
@@ -106,31 +135,44 @@ public class QualtricsDE {
 
         boolean savedSomething = false;
 
-        for (int i = 0; i < maxReach; i++) {
-            if (i != idKey) {
-                String firstValue = first.columnData(i);
-                String secondValue = second.columnData(i);
+        for (int i = 0; i < maxReach || (saveOption == 1 && i < headerColumns.length); i++) {
+            String firstValue = first.columnData(i);
+            String secondValue = second.columnData(i);
+            boolean foundMismatch = false;
+            if (i != idKey && i < maxReach) {
                 if (!firstValue.equals(secondValue)) {
+                    foundMismatch = true;
                     if (savedSomething == false) {
                         if (numSaved == 0) {
-                            results.append("Original ID" + saveDelimiter + "Double Entry ID" + saveDelimiter + "Mismatched Column Name" + saveDelimiter + "Mismatched Column Index" + saveDelimiter + "Original Data" + saveDelimiter + "Double Entry Data\n");
+                            if (saveOption == 0) {
+                                results.append("Original ID" + saveDelimiter + "Double Entry ID" + saveDelimiter + "Mismatched Column Name" + saveDelimiter + "Mismatched Column Index" + saveDelimiter + "Original Data" + saveDelimiter + "Double Entry Data\n");
+                            }
                         }
                         DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
                         DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
                         DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
                         savedSomething = true;
                     } else {
-                        results.append("\n");
+                        if (saveOption == 0) {
+                            results.append("\n");
+                        }
                     }
                     DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + ") MISMATCH - FOUND:\n");
                     DoubleEntry.appendStatus(origPrint + firstValue + "\n");
                     DoubleEntry.appendStatus(doubPrint + secondValue + "\n");
-                    results.append(originalEntry + saveDelimiter + doubleEntry + saveDelimiter + headerColumns[i] + saveDelimiter + i + saveDelimiter + firstValue + saveDelimiter + secondValue);
+                    if (saveOption == 0) {
+                        results.append(originalEntry + saveDelimiter + doubleEntry + saveDelimiter + headerColumns[i] + saveDelimiter + i + saveDelimiter + firstValue + saveDelimiter + secondValue);
+                    } else if (saveOption == 1) {
+                        results.append("MISMATCH WITH " + doubleEntry + saveDelimiter);
+                    }
                 }
+            }
+            if (saveOption == 1 && !foundMismatch) {
+                results.append(firstValue + saveDelimiter);
             }
         }
 
-        if (savedSomething) {
+        if (savedSomething || saveOption == 1) {
             results.append("\n");
             numSaved++;
         }
@@ -155,9 +197,20 @@ public class QualtricsDE {
 	    }
     }
 
+    private static String newlineTerminator(String line) {
+        if (!line.endsWith("\n")) {
+            line += "\n";
+        }
+        return line;
+    }
+
     private static void initializeHeader() {
     	try {
-    		headerColumns = TSVFile.readLine().split(delimiter);
+            String  line = TSVFile.readLine();
+    		headerColumns = line.split(delimiter);
+            if (saveOption == 1) {
+                results.append(newlineTerminator(line));
+            }
 	    } catch (IOException e) {
 	    	DoubleEntry.appendStatus("DEBUG: Attempted to initialize header but not possible.\n");
 	    }
@@ -166,7 +219,11 @@ public class QualtricsDE {
     private static void skipLines(int lines) {
     	try {
 	    	while (lines > 0) {
-	    		TSVFile.readLine();
+	    		if (saveOption == 1) {
+                    results.append(newlineTerminator(TSVFile.readLine()));
+                } else {
+                    TSVFile.readLine();
+                }
 	    		lines--;
 	    	}
 	    } catch (IOException e) {
