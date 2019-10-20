@@ -10,6 +10,7 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 
 ### Instructions
 * Download latest release for your platform. Instructions can be found in the app.
+* Sample data is included in this distribution. The ID column is *31* and the prefix for double-entry data is *X_*
 
 ### To Do
 * Documentation/Comments
