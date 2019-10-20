@@ -14,27 +14,24 @@ public class QualtricsDE {
     private static Scanner systemInput;
 
     // Constructor
-    public QualtricsDE() throws Exception {
+    public QualtricsDE(int idColumn, String idPrefix, File file) throws Exception {
         systemInput = new Scanner(System.in);
         delimiter = "[\\t]";
         idKey = -1;
-        String filename = promptUser("What is the name of the file (case-sensitive): ");
 
         try {
-            TSVFile = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_16));
+            TSVFile = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));
         } catch (Exception e) {
-            System.out.println("DEBUG: No file found. Does " + filename + " exist?");
-            System.exit(1);
+            DoubleEntry.appendStatus("ERROR: No File Found. Does " + file.getName() + " exist?\n");
         }
 
         initializeHeader();
 
-        idKey = Integer.valueOf(promptUser("Where column A is 0, what column is the participant identifier located on: "));
-        while (idKey == -1 || idKey > headerColumns.length) {
-            System.out.println("NOTICE: Invalid ID Column. Try again.");
-            idKey = Integer.valueOf(promptUser("Where column A is 0, what column is the participant identifier located on: "));
+        idKey = idColumn;
+        if (idKey > headerColumns.length) {
+            DoubleEntry.appendStatus("ERROR: The specified ID column is invalid.\n");
         }
-        idPrefix = promptUser("What are IDs prefixed with for double entry: ").toLowerCase().trim();
+        this.idPrefix = idPrefix.toLowerCase().trim();
 
         skipLines(2);
         loadSurveys();
@@ -48,16 +45,27 @@ public class QualtricsDE {
 
     private static void analyzeSurveys() {
         idParticipantMap = new HashMap<>();
+        boolean printDuplicate = false;
         for (int i = 0; i < participantInformation.size(); i++) {
             SurveyData data = participantInformation.get(i);
             String id = data.participantIdentifier();
+            if (!printDuplicate && idParticipantMap.containsKey(id) && id != "MISSING ID") {
+                printDuplicate = true;
+            }
             idParticipantMap.put(id, data);
+        }
+        if (printDuplicate) {
+            DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur.\n");
         }
 
         Set<String> participantPool = idParticipantMap.keySet();
         if (participantPool.contains("MISSING ID")) {
-        	System.out.println("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
+        	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
         }
+
+        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("Starting Analysis.");
+        DoubleEntry.appendStatus("\n------------------------------\n");
 
         Iterator<String> participants = participantPool.iterator();
         while (participants.hasNext()) {
@@ -70,24 +78,26 @@ public class QualtricsDE {
     }
 
     private static void printOffending(String originalEntry, String doubleEntry) {
-        System.out.println("\n------------------------------");
-        System.out.println("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-        System.out.println("------------------------------\n");
+        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
+        DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
+        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
 
         SurveyData first = idParticipantMap.get(originalEntry);
         SurveyData second = idParticipantMap.get(doubleEntry);
 
         int maxReach = Math.max(first.internalLength(), second.internalLength());
 
+        String origPrint = "ID- " + originalEntry + ": ";
+        String doubPrint = "ID- " + doubleEntry + ": ";
+
         for (int i = 0; i < maxReach; i++) {
             if (i != idKey) {
                 String firstValue = first.columnData(i);
                 String secondValue = second.columnData(i);
                 if (!firstValue.equals(secondValue)) {
-                    System.out.println("COLUMN " + i + " MISMATCH - FOUND:");
-                    System.out.println("originalEntry: " + firstValue);
-                    System.out.println("doubleEntry: " + secondValue);
-                    System.out.println();
+                    DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + " MISMATCH - FOUND:\n");
+                    DoubleEntry.appendStatus(origPrint + firstValue + "\n");
+                    DoubleEntry.appendStatus(doubPrint + secondValue + "\n");
                 }
             }
         }
@@ -95,16 +105,9 @@ public class QualtricsDE {
     }
 
     private static void completeStatement() {
-        System.out.println("\n------------------------------");
-        System.out.println("Analysis Complete. No other records found.");
-        System.out.println("------------------------------\n");
-    }
-
-    private static String promptUser(String prompt) {
-        System.out.print(prompt);
-        String data = systemInput.nextLine();
-        System.out.println();
-        return data;
+        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("Analysis Complete. No other records found.");
+        DoubleEntry.appendStatus("\n------------------------------\n");
     }
 
     private static void loadSurveys() {
@@ -116,8 +119,7 @@ public class QualtricsDE {
 	    		participantInformation.add(new SurveyData(headerColumns, loadData, delimiter, idKey));
 	    	}
 	    } catch (IOException e) {
-	    	System.out.println("DEBUG: Unable to load surveys.");
-	    	System.exit(1);
+	    	DoubleEntry.appendStatus("DEBUG: Unable to load surveys.\n");
 	    }
     }
 
@@ -125,8 +127,7 @@ public class QualtricsDE {
     	try {
     		headerColumns = TSVFile.readLine().split(delimiter);
 	    } catch (IOException e) {
-	    	System.out.println("DEBUG: Attempted to initialize header but not possible.");
-	    	System.exit(1);
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to initialize header but not possible.\n");
 	    }
     }
 
@@ -137,8 +138,7 @@ public class QualtricsDE {
 	    		lines--;
 	    	}
 	    } catch (IOException e) {
-	    	System.out.println("DEBUG: Attempted to skip more lines than file has remaining.");
-	    	System.exit(1);
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to skip more lines than file has remaining.\n");
 	    }
     }
 }

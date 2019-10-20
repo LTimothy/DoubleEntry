@@ -6,18 +6,18 @@ import java.io.*;
 public class DoubleEntry extends JFrame
 {
 	// GUI Elements
+	private static JTextArea status;
 	private JTextField columnText;
 	private JTextField prefixText;
-	private JTextArea status;
 	private JFileChooser fileChooser;
 	private JButton submitBtn;
+	private Font defaultFont;
 
 	// Data Fields
-	private String filename;
-	private int idColumn;
-	private Font defaultFont;
-	private String idPrefix;
-	private File file;
+	private static String filename;
+	private static int idColumn;
+	private static String idPrefix;
+	private static File file;
 
 	public DoubleEntry() {
 		Container contain = getContentPane();
@@ -111,6 +111,10 @@ public class DoubleEntry extends JFrame
 		setVisible(true);
 	}
 
+	public static void appendStatus(String text) {
+		status.append(text);
+	}
+
 	private class FileListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
@@ -120,7 +124,7 @@ public class DoubleEntry extends JFrame
 				if (validity == JFileChooser.APPROVE_OPTION) {
 					file = fileChooser.getSelectedFile();
 					filename = file.getName();
-					status.setText("Load Succesful");
+					status.setText("Load Succesful\n");
 				}
 			} else {
 				// No Save Functionality Yet
@@ -157,7 +161,8 @@ public class DoubleEntry extends JFrame
 				status.setText("");
 				status.append("Filename: " + filename + "\n");
 				status.append("ID Column #: " + idText + "\n");
-				status.append("Prefix: " + idPrefix + "\n");
+				status.append("Prefix: " + idPrefix + "\n\n");
+				runQualtricsDE();
 			} else if (label.equals("Clear")) {
 				status.setText("");
 				filename = "";
@@ -168,7 +173,7 @@ public class DoubleEntry extends JFrame
 				status.setText("");
 				status.append("1. Select File\n");
 				status.append("2. Enter the column your participant identifier is in. This is 0-indexed, meaning that if your ID is in column \"A\" in Excel, you should enter: 0\n");
-				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\", please enter: X_");
+				status.append("3. Enter the prefix your double-entry IDs have. For example, if your ID's are usually 5 digits (#####) and the double entry records are prefixed with \"X_\", please enter: X_\n");
 			}
 		}
 	}
@@ -180,9 +185,11 @@ public class DoubleEntry extends JFrame
 				new DoubleEntry();
 			}
 		});
-		// DoubleEntry instance = new DoubleEntry();
+	}
+
+	private static void runQualtricsDE() {
 		try {
-			// new QualtricsDE();
+			new QualtricsDE(idColumn, idPrefix, file);
 		} catch (Exception e) {
 			System.out.println("Failed to run QualtricsDE.");
 		}
