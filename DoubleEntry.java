@@ -35,6 +35,7 @@ public class DoubleEntry extends JFrame
 	private static int idColumn;
 	private static String idPrefix;
 	private static File file;
+	private static DoubleEntryValidationLogic logic;
 
 	public DoubleEntry() {
 		Container contain = getContentPane();
@@ -179,7 +180,7 @@ public class DoubleEntry extends JFrame
 					try {
 						File file = fileChooser.getSelectedFile();
 						FileWriter fileW = new FileWriter(file, StandardCharsets.UTF_16);
-						String results = QualtricsDE.saveResult();
+						String results = logic.getResult();
 						fileW.write(results, 0, results.length());
 						fileW.close();
 					} catch (IOException e) {
@@ -219,7 +220,7 @@ public class DoubleEntry extends JFrame
 				status.append("Filename: " + filename + "\n");
 				status.append("ID Column #: " + idText + "\n");
 				status.append("Prefix: " + idPrefix + "\n\n");
-				runQualtricsDE();
+				runQualtricsDEVL();
 			} else if (label.equals("Clear")) {
 				status.setText("");
 				filename = "";
@@ -252,15 +253,15 @@ public class DoubleEntry extends JFrame
 		});
 	}
 
-	private static void runQualtricsDE() {
+	private static void runQualtricsDEVL() {
 		try {
 			int saveOption = 0;
 			if (saveFullExport.isSelected()) {
 				saveOption = 1;
 			}
-			new QualtricsDE(idColumn, idPrefix, file, "[\\t]", "\t", saveOption);
+			logic = new QualtricsDEVL(idColumn, idPrefix, file, "[\\t]", "\t", saveOption);
 		} catch (Exception e) {
-			appendStatus("\nFailed to run QualtricsDE.\n");
+			appendStatus("\nFailed to run QualtricsDEVL.\n");
 		}
 	}
 }

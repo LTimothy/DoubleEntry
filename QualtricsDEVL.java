@@ -18,22 +18,18 @@ import java.util.*;
 import java.lang.*;
 import java.nio.charset.StandardCharsets;
 
-public class QualtricsDE {
-    private static String delimiter;
+public class QualtricsDEVL extends DoubleEntryValidationLogic {
     private static String headerColumns[];
     private static BufferedReader TSVFile;
     private static List<SurveyData> participantInformation;
     private static List<SurveyData> excludedFromMap;
     private static Map<String, SurveyData> idParticipantMap;
-    private static int idKey;
     private static String idPrefix;
     private static int numSaved;
     private static StringBuilder results;
-    private static String saveDelimiter;
     private static int saveOption;
-    private static File inputFile;
 
-    public QualtricsDE(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter, int saveOption) throws Exception {
+    public QualtricsDEVL(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter, int saveOption) throws Exception {
         this.delimiter = delimiter;
         this.saveDelimiter = saveDelimiter;
         this.saveOption = saveOption;
@@ -66,7 +62,7 @@ public class QualtricsDE {
         }
     }
 
-    public static String saveResult() {
+    public String getResult() {
         if (numSaved == 0 || results == null || results.equals("")) {
             DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
             return "";
