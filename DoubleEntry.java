@@ -4,16 +4,20 @@ import javax.swing.*;
 
 public class DoubleEntry extends JFrame
 {
-	// private Label filenameLabel;    // Declare a Label component 
+	// GUI Elements
 	private JTextField filenameText;
 	private JTextField columnText;
 	private JTextField prefixText;
 	private JTextArea status;
-	private JButton submitBtn;   // Declare a Button component
+	private JFileChooser fileChooser;
+	private JButton submitBtn;
+
+	// Data Fields
 	private String filename;
 	private int idColumn;
 	private Font defaultFont;
 	private String idPrefix;
+	private File file;
 
 	public DoubleEntry() {
 		Container contain = getContentPane();
@@ -35,10 +39,14 @@ public class DoubleEntry extends JFrame
 		filenameText = new JTextField(20);
 		filenameText.setFont(defaultFont);
 		filenameText.setEditable(true);
-		filenamePanel.add(filenameText);
+		// filenamePanel.add(filenameText);
+		fileChooser = new JFileChooser();
+		JButton openButton = new JButton("Open File...");
+		this.file = null;
+		openButton.addActionListener(new FileListener());
 
 		// Column loading
-		JLabel columnLabel = new JLabel("Enter ID Column (let A by 0)");
+		JLabel columnLabel = new JLabel("Enter ID Column # (0-indexed)");
 		columnLabel.setFont(defaultFont);
 		columnPanel.add(columnLabel);
 		columnText = new JTextField(20);
@@ -47,7 +55,7 @@ public class DoubleEntry extends JFrame
 		columnPanel.add(columnText);
 
 		// Prefix loading
-		JLabel prefixLabel = new JLabel("Enter ID Prefix (e.g. X_ for X_IDNUM)");
+		JLabel prefixLabel = new JLabel("Enter ID Prefix");
 		prefixLabel.setFont(defaultFont);
 		prefixPanel.add(prefixLabel);
 		prefixText = new JTextField(20);
@@ -99,12 +107,37 @@ public class DoubleEntry extends JFrame
 		contain.add(southPanel, BorderLayout.SOUTH);
 
 
+		// Container Setup
 		setTitle("Double Entry");
 		//setSize(250, 100);
 		setBounds(100, 100, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 		setVisible(true);
+	}
+
+	private class FileListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			String label = evt.getActionCommand();
+			if (label.equals("Open File...")) {
+				file = fc.getSelectedFile();
+				filename = file.getName();
+			} else {
+				// No Save Functionality Yet
+			}
+			/*
+	        } else if (e.getSource() == saveButton) {
+	            int returnVal = fc.showSaveDialog(FileChooserDemo.this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where a real application would save the file.
+	                log.append("Saving: " + file.getName() + "." + newline);
+	            } else {
+	                log.append("Save command cancelled by user." + newline);
+	            }
+	            log.setCaretPosition(log.getDocument().getLength());
+	        } */
+		}
 	}
 
 	private class ButtonListener implements ActionListener {
@@ -131,6 +164,7 @@ public class DoubleEntry extends JFrame
 				filename = "";
 				idColumn = 0;
 				idPrefix = "";
+				file = null;
 			} else if (label.equals("Instructions")) {
 				status.setText("");
 				status.append("1. Select File\n");
