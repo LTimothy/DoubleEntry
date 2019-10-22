@@ -281,7 +281,7 @@ public class DoubleEntry extends JFrame
 			if (saveFullExport.isSelected()) {
 				saveOption = 1;
 			}
-			logic = new QualtricsDEVL(idColumn, idPrefix, file, "[\\t]", "\t", saveOption);
+			logic = new QualtricsDEVL(idColumn, idPrefix, file, new Delimiter("[\\t]", "\t", "\n"), saveOption);
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDEVL.\n");
 		}

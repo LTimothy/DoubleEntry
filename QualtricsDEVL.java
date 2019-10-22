@@ -28,27 +28,27 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
     private static int numSaved;
     private static StringBuilder results;
     private static int saveOption;
+    private static Delimiter delim;
 
-    public QualtricsDEVL(int idColumn, String idPrefix, File file, String delimiter, String saveDelimiter, int saveOption) throws Exception {
-        this.delimiter = delimiter;
-        this.saveDelimiter = saveDelimiter;
+    public QualtricsDEVL(int idColumn, String idPrefix, File file, Delimiter delim, int saveOption) throws Exception {
         this.saveOption = saveOption;
-        numSaved = 0;
-        results = new StringBuilder();
-        excludedFromMap = new ArrayList<>();
+        this.delim = delim;
+        this.numSaved = 0;
+        this.results = new StringBuilder();
+        this.excludedFromMap = new ArrayList<>();
         this.inputFile = file;
 
         try {
             TSVFile = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));
         } catch (Exception e) {
-            DoubleEntry.appendStatus("ERROR: No file found. Does " + file.getName() + " exist?\n");
+            DoubleEntry.appendStatus("ERROR: No file found. Does " + file.getName() + " exist?" + delim.getRowDelimiter());
         }
 
         initializeHeader();
 
-        idKey = idColumn;
+        this.idKey = idColumn;
         if (idKey > headerColumns.length) {
-            DoubleEntry.appendStatus("ERROR: The specified ID column is invalid.\n");
+            DoubleEntry.appendStatus("ERROR: The specified ID column is invalid." + delim.getRowDelimiter());
         }
         this.idPrefix = idPrefix.toLowerCase().trim();
 
@@ -64,7 +64,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
 
     public String getResult() {
         if (numSaved == 0 || results == null || results.equals("")) {
-            DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
+            DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?" + delim.getRowDelimiter());
             return "";
         }
 
@@ -93,17 +93,17 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         }
 
         if (printDuplicate) {
-            DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur.\n");
+            DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur." + delim.getRowDelimiter());
         }
 
         Set<String> participantPool = idParticipantMap.keySet();
         if (participantPool.contains("MISSING ID")) {
-        	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
+        	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id." + delim.getRowDelimiter());
         }
 
-        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
         DoubleEntry.appendStatus("Starting Analysis.");
-        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
 
         Iterator<String> participants = participantPool.iterator();
         while (participants.hasNext()) {
@@ -125,9 +125,9 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             userId = idParticipantMap.get(surveyId);
         }
         for (int i = 0; i < headerColumns.length; i++) {
-            results.append(userId.columnData(i) + saveDelimiter);
+            results.append(userId.columnData(i) + delim.getSaveDelimiter());
         }
-        results.append("\n");
+        results.append("" + delim.getRowDelimiter());
     }
 
     private static void printOffending(String originalEntry, String doubleEntry) {
@@ -151,43 +151,43 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
                     if (savedSomething == false) {
                         if (numSaved == 0) {
                             if (saveOption == 0) {
-                                results.append("Original ID" + saveDelimiter + "Double Entry ID" + saveDelimiter + "Mismatched Column Name" + saveDelimiter + "Mismatched Column Index" + saveDelimiter + "Original Data" + saveDelimiter + "Double Entry Data\n");
+                                results.append("Original ID" + delim.getSaveDelimiter() + "Double Entry ID" + delim.getSaveDelimiter() + "Mismatched Column Name" + delim.getSaveDelimiter() + "Mismatched Column Index" + delim.getSaveDelimiter() + "Original Data" + delim.getSaveDelimiter() + "Double Entry Data" + delim.getRowDelimiter());
                             }
                         }
-                        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
+                        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------------------------------------" + delim.getRowDelimiter());
                         DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-                        DoubleEntry.appendStatus("\n------------------------------------------------------------\n");
+                        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------------------------------------" + delim.getRowDelimiter());
                         savedSomething = true;
                     } else {
                         if (saveOption == 0) {
-                            results.append("\n");
+                            results.append("" + delim.getRowDelimiter());
                         }
                     }
-                    DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + ") MISMATCH - FOUND:\n");
-                    DoubleEntry.appendStatus(origPrint + firstValue + "\n");
-                    DoubleEntry.appendStatus(doubPrint + secondValue + "\n");
+                    DoubleEntry.appendStatus(headerColumns[i] + " (Col. #: " + i + ") MISMATCH - FOUND:" + delim.getRowDelimiter());
+                    DoubleEntry.appendStatus(origPrint + firstValue + "" + delim.getRowDelimiter());
+                    DoubleEntry.appendStatus(doubPrint + secondValue + "" + delim.getRowDelimiter());
                     if (saveOption == 0) {
-                        results.append(originalEntry + saveDelimiter + doubleEntry + saveDelimiter + headerColumns[i] + saveDelimiter + i + saveDelimiter + firstValue + saveDelimiter + secondValue);
+                        results.append(originalEntry + delim.getSaveDelimiter() + doubleEntry + delim.getSaveDelimiter() + headerColumns[i] + delim.getSaveDelimiter() + i + delim.getSaveDelimiter() + firstValue + delim.getSaveDelimiter() + secondValue);
                     } else if (saveOption == 1) {
-                        results.append("MISMATCH WITH " + doubleEntry + saveDelimiter);
+                        results.append("MISMATCH WITH " + doubleEntry + delim.getSaveDelimiter());
                     }
                 }
             }
             if (saveOption == 1 && !foundMismatch) {
-                results.append(firstValue + saveDelimiter);
+                results.append(firstValue + delim.getSaveDelimiter());
             }
         }
 
         if (savedSomething || saveOption == 1) {
-            results.append("\n");
+            results.append("" + delim.getRowDelimiter());
             numSaved++;
         }
     }
 
     private static void completeStatement() {
-        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
         DoubleEntry.appendStatus("Analysis Complete. No other records found.");
-        DoubleEntry.appendStatus("\n------------------------------\n");
+        DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
     }
 
     private static void loadSurveys() {
@@ -196,16 +196,16 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
 
     	try {
 	    	while ((loadData = TSVFile.readLine()) != null) {
-	    		participantInformation.add(new SurveyData(headerColumns, loadData, delimiter, idKey));
+	    		participantInformation.add(new SurveyData(headerColumns, loadData, delim.getDelimiter(), idKey));
 	    	}
 	    } catch (IOException e) {
-	    	DoubleEntry.appendStatus("DEBUG: Unable to load surveys.\n");
+	    	DoubleEntry.appendStatus("DEBUG: Unable to load surveys." + delim.getRowDelimiter());
 	    }
     }
 
     private static String newlineTerminator(String line) {
-        if (!line.endsWith("\n")) {
-            line += "\n";
+        if (!line.endsWith("" + delim.getRowDelimiter())) {
+            line += "" + delim.getRowDelimiter();
         }
         return line;
     }
@@ -213,13 +213,13 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
     private static void initializeHeader() {
     	try {
             String  line = TSVFile.readLine();
-    		headerColumns = line.split(delimiter);
+    		headerColumns = line.split(delim.getDelimiter());
             if (saveOption == 1) {
                 results.delete(0, results.length());
                 results.append(newlineTerminator(line));
             }
 	    } catch (IOException e) {
-	    	DoubleEntry.appendStatus("DEBUG: Attempted to initialize header but not possible.\n");
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to initialize header but not possible." + delim.getRowDelimiter());
 	    }
     }
 
@@ -234,7 +234,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
 	    		lines--;
 	    	}
 	    } catch (IOException e) {
-	    	DoubleEntry.appendStatus("DEBUG: Attempted to skip more lines than file has remaining.\n");
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to skip more lines than file has remaining." + delim.getRowDelimiter());
 	    }
     }
 }
