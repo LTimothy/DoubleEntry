@@ -32,8 +32,8 @@ public class DoubleEntry extends JFrame
 
 	// Data Fields
 	private static String filename;
-	private static int idColumn;
-	private static String idPrefix;
+	private static int indexColumn;
+	private static String doublePrefix;
 	private static File file;
 	private static DoubleEntryValidationLogic logic;
 	private static Survey s;
@@ -236,23 +236,23 @@ public class DoubleEntry extends JFrame
 				String idText;
 				try {
 					idText = columnText.getText();
-					idColumn = Integer.valueOf(idText);
+					indexColumn = Integer.valueOf(idText);
 				} catch (NumberFormatException e) {
 					idText = "Invalid Number";
 				}
 
-				idPrefix = prefixText.getText();
+				doublePrefix = prefixText.getText();
 				status.setText("");
 				status.append("Program Platform: " + osName + "\n");
 				status.append("Filename: " + filename + "\n");
 				status.append("ID Column #: " + idText + "\n");
-				status.append("Prefix: " + idPrefix + "\n\n");
+				status.append("Prefix: " + doublePrefix + "\n\n");
 				runQualtricsDEVL();
 			} else if (label.equals("Clear")) {
 				status.setText("");
 				filename = "";
-				idColumn = 0;
-				idPrefix = "";
+				indexColumn = 0;
+				doublePrefix = "";
 				file = null;
 			} else if (label.equals("Instructions")) {
 				status.setText("----------Basic Instructions----------\n");
@@ -286,7 +286,7 @@ public class DoubleEntry extends JFrame
 			if (saveFullExport.isSelected()) {
 				saveOption = 1;
 			}
-			s = new QualtricsSurvey(file, new Delimiter("[\\t]", "\t", "\n"), idColumn, idPrefix);
+			s = new QualtricsSurvey(file, new Delimiter("[\\t]", "\t", "\n"), indexColumn, doublePrefix);
 			logic = new QualtricsDEVL(s, saveOption);
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDEVL.\n");

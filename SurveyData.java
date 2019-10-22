@@ -21,32 +21,35 @@ class SurveyData {
 	private int internalLength;
 	private String[] headerColumns;
 	private String delimiter;
-	private int columnKey;
+	private int indexColumn;
 
-	public SurveyData(String[] headerData, String parsableData, String delimiter, int columnId) {
-		surveyData = new TreeMap<>();
-		rawData = parsableData.split(delimiter);
-		internalLength = rawData.length;
-		headerColumns = headerData;
+	public SurveyData(String[] headerData, String parsableData, String delimiter, int indexColumn) {
+		this.surveyData = new TreeMap<>();
+		this.rawData = parsableData.split(delimiter);
+		this.internalLength = rawData.length;
+		this.headerColumns = headerData;
 		this.delimiter = delimiter;
-		columnKey = columnId;
+		this.indexColumn = indexColumn;
 		parseData(rawData);
 	}
 
 	private void parseData(String[] personalInformation) {
 		for (int i = 0; i < headerColumns.length; i++) {
 			if (i < personalInformation.length) {
-				surveyData.put(headerColumns[i], personalInformation[i].toLowerCase().trim());
+				if (this.surveyData.containsKey(headerColumns[i])) {
+					DoubleEntry.appendStatus("NOTICE: Duplicate variable names in header detected. Non-deterministic behavior may occur." + this.delim.getRowSeparator());
+				}
+				this.surveyData.put(headerColumns[i], personalInformation[i].toLowerCase().trim());
 			} else {
-				surveyData.put(headerColumns[i], "");
+				this.surveyData.put(headerColumns[i], "");
 			}
 		}
 	}
 
 	public String participantIdentifier() {
-		String id = surveyData.get(headerColumns[columnKey]);
+		String id = this.surveyData.get(headerColumns[this.indexColumn]);
 		if (id.equals("")) {
-			return "MISSING ID";
+			return "N/A";
 		} else {
 			return id;
 		}

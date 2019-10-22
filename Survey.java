@@ -163,7 +163,7 @@ class Survey {
         for (int i = 0; i < participantInformation.size(); i++) {
             SurveyData data = participantInformation.get(i);
             String id = data.participantIdentifier();
-            if (!printDuplicate && idParticipantMap.containsKey(id) && id != "MISSING ID") {
+            if (!printDuplicate && idParticipantMap.containsKey(id) && id != "N/A") {
                 printDuplicate = true;
             }
             if (idParticipantMap.containsKey(id)) {
@@ -177,7 +177,7 @@ class Survey {
         }
 
         Set<String> participantPool = idParticipantMap.keySet();
-        if (participantPool.contains("MISSING ID")) {
+        if (participantPool.contains("N/A")) {
         	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id." + this.delim.getRowSeparator());
         }
     }
