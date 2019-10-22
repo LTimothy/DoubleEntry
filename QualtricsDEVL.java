@@ -34,7 +34,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         if (idKey > this.s.getHeaderColumnLength()) {
             DoubleEntry.appendStatus("ERROR: The specified ID column is invalid." + delim.getRowSeparator());
         }
-        this.idPrefix = this.s.getPrefix().toLowerCase().trim(); // idPrefix.toLowerCase().trim();
+        this.idPrefix = this.s.getPrefix();
 
         analyzeSurveys();
         completeStatement();

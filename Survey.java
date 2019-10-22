@@ -96,7 +96,7 @@ class Survey {
 	}
 
 	public String getPrefix() {
-		return this.doublePrefix;
+		return this.doublePrefix.trim().toLowerCase();
 	}
 
 	public int getHeaderColumnLength() {
