@@ -1,16 +1,23 @@
 /**
- * Qualtrics Survey is a type of survey. The data starts 2 rows after the header.
+ * QualtricsSurvey is a type of survey. The data starts 2 rows after the header.
  *
- * Copyright (C) 2019 Timothy Lee - All Rights Reserved
- * You may use, distribute and modify this code under the
- * terms of the GNU General Public License v3.0.
+ * Copyright (C) 2019 Timothy Lee
  *
- * You should have received a copy of the GNU General
- * Public License v3.0 with this file. If not, please
- * contact: timothyl@berkeley.edu, or visit:
- * https://github.com/LTimothy/DoubleEntry
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * @author: Timothy Lee (https://timothylee.us)
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @source: <https://github.com/LTimothy/DoubleEntry>
+ * @author: Timothy Lee <https://timothylee.us>
  */
 
 import java.io.*;
