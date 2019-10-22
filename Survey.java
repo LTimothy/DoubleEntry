@@ -48,10 +48,10 @@ class Survey {
         } catch (Exception e) {
         	System.out.println("Survey Constructor (1): " + e);
         	try {
-	            DoubleEntry.appendStatus("ERROR: No file found. Does " + file.getName() + " exist?" + this.delim.getRowSeparator());
+	            DoubleEntry.appendStatus("ERROR: No file found. Does " + file.getName() + " exist?\n");
 	        } catch (NullPointerException f) {
 	        	System.out.println("Survey Constructor (2): " + f);
-	        	DoubleEntry.appendStatus("ERROR: No valid file selected." + this.delim.getRowSeparator());
+	        	DoubleEntry.appendStatus("ERROR: No valid file selected.\n");
 	        	return;
 	        }
 	        return;
@@ -67,7 +67,7 @@ class Survey {
             	this.readFile.close();
             } catch (IOException e) {
             	System.out.println("Survey Constructor (3): " + e);
-            	DoubleEntry.appendStatus("ERROR: Failed to close file." + this.delim.getRowSeparator());
+            	DoubleEntry.appendStatus("ERROR: Failed to close file.\n");
             	return;
             }
         }
@@ -127,7 +127,7 @@ class Survey {
             results.append(rowTerminator(line));
 	    } catch (IOException e) {
 	    	System.out.println("loadHeader(): " + e);
-	    	DoubleEntry.appendStatus("DEBUG: Attempted to load header but not possible." + this.delim.getRowSeparator());
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to load header but not possible.\n");
 	    	return;
 	    }
     }
@@ -140,7 +140,7 @@ class Survey {
 	    	}
 	    } catch (IOException e) {
 	    	System.out.println("skipLines(): " + e);
-	    	DoubleEntry.appendStatus("DEBUG: Attempted to skip more lines than file has remaining." + this.delim.getRowSeparator());
+	    	DoubleEntry.appendStatus("DEBUG: Attempted to skip more lines than file has remaining.\n");
 	    	return;
 	    }
     }
@@ -153,7 +153,7 @@ class Survey {
 	    	}
 	    } catch (IOException e) {
 	    	System.out.println("loadSurveys(): " + e);
-	    	DoubleEntry.appendStatus("DEBUG: Unable to load surveys." + this.delim.getRowSeparator());
+	    	DoubleEntry.appendStatus("DEBUG: Unable to load surveys.\n");
 	    	return;
 	    }
     }
@@ -163,7 +163,7 @@ class Survey {
         for (int i = 0; i < participantInformation.size(); i++) {
             SurveyData data = participantInformation.get(i);
             String id = data.participantIdentifier();
-            if (!printDuplicate && idParticipantMap.containsKey(id) && id != "N/A") {
+            if (!printDuplicate && idParticipantMap.containsKey(id) && id != "N/A-MISSING") {
                 printDuplicate = true;
             }
             if (idParticipantMap.containsKey(id)) {
@@ -173,12 +173,12 @@ class Survey {
         }
 
         if (printDuplicate) {
-            DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur." + this.delim.getRowSeparator());
+            DoubleEntry.appendStatus("NOTICE: Duplicate IDs detected. Non-deterministic behavior may occur.\n");
         }
 
         Set<String> participantPool = idParticipantMap.keySet();
-        if (participantPool.contains("N/A")) {
-        	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id." + this.delim.getRowSeparator());
+        if (participantPool.contains("N/A-MISSING")) {
+        	DoubleEntry.appendStatus("NOTICE: Some records may have missing ids! Non-deterministic behavior may occur on entries with missing id.\n");
         }
     }
 

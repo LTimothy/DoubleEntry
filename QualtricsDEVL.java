@@ -31,8 +31,8 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         this.numSaved = 0;
         this.results = new StringBuilder();
         this.idKey = this.s.getIndex();
-        if (idKey > this.s.getHeaderColumnLength()) {
-            DoubleEntry.appendStatus("ERROR: The specified ID column is invalid." + delim.getRowSeparator());
+        if (this.idKey > this.s.getHeaderColumnLength()) {
+            DoubleEntry.appendStatus("ERROR: The specified ID column is invalid.\n");
         }
         this.idPrefix = this.s.getPrefix();
 
@@ -41,8 +41,8 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
     }
 
     public String getResult() {
-        if (numSaved == 0 || results == null || results.equals("")) {
-            DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?" + delim.getRowSeparator());
+        if (this.numSaved == 0 || this.results == null || this.results.equals("")) {
+            DoubleEntry.appendStatus("ERROR: Saved Empty Data. Did you run the program already?\n");
             return "";
         }
 
@@ -52,13 +52,13 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             }
         }
 
-        return results.toString();
+        return this.results.toString();
     }
 
     private void analyzeSurveys() {
-        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------" + delim.getRowSeparator());
+        DoubleEntry.appendStatus("\n-----------------------------\n");
         DoubleEntry.appendStatus("Starting Analysis.");
-        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------" + delim.getRowSeparator());
+        DoubleEntry.appendStatus("\n-----------------------------\n");
 
         Set<String> uniqueNames = this.s.getUniqueParticipantNameSet();
         Iterator<String> participants = uniqueNames.iterator();
@@ -81,9 +81,9 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             userId = this.s.getParticipantData(surveyId);
         }
         for (int i = 0; i < this.s.getHeaderColumnLength(); i++) {
-            results.append(userId.columnData(i) + delim.getSaveSeparator());
+            this.results.append(userId.columnData(i) + this.delim.getSaveSeparator());
         }
-        results.append(delim.getRowSeparator());
+        this.results.append(this.delim.getRowSeparator());
     }
 
     private void printOffending(String originalEntry, String doubleEntry) {
@@ -101,48 +101,48 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             String firstValue = first.columnData(i);
             String secondValue = second.columnData(i);
             boolean foundMismatch = false;
-            if (i != idKey && i < maxReach) {
+            if (i != this.idKey && i < maxReach) {
                 if (!firstValue.equals(secondValue)) {
                     foundMismatch = true;
                     if (savedSomething == false) {
-                        if (numSaved == 0) {
+                        if (this.numSaved == 0) {
                             if (this.saveOption == 0) {
-                                results.append("Original ID" + delim.getSaveSeparator() + "Double Entry ID" + delim.getSaveSeparator() + "Mismatched Column Name" + delim.getSaveSeparator() + "Mismatched Column Index" + delim.getSaveSeparator() + "Original Data" + delim.getSaveSeparator() + "Double Entry Data" + delim.getRowSeparator());
+                                this.results.append("Original ID" + this.delim.getSaveSeparator() + "Double Entry ID" + this.delim.getSaveSeparator() + "Mismatched Column Name" + this.delim.getSaveSeparator() + "Mismatched Column Index" + this.delim.getSaveSeparator() + "Original Data" + this.delim.getSaveSeparator() + "Double Entry Data" + this.delim.getRowSeparator());
                             }
                         }
-                        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------------------------------------" + delim.getRowSeparator());
+                        DoubleEntry.appendStatus("" + this.delim.getRowSeparator() + "-----------------------------------------------------------\n");
                         DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-                        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------------------------------------" + delim.getRowSeparator());
+                        DoubleEntry.appendStatus("" + this.delim.getRowSeparator() + "-----------------------------------------------------------\n");
                         savedSomething = true;
                     } else {
                         if (this.saveOption == 0) {
-                            results.append("" + delim.getRowSeparator());
+                            this.results.append("" + this.delim.getRowSeparator());
                         }
                     }
-                    DoubleEntry.appendStatus(this.s.getHeaderColumn(i) + " (Col. #: " + i + ") MISMATCH - FOUND:" + delim.getRowSeparator());
-                    DoubleEntry.appendStatus(origPrint + firstValue + "" + delim.getRowSeparator());
-                    DoubleEntry.appendStatus(doubPrint + secondValue + "" + delim.getRowSeparator());
+                    DoubleEntry.appendStatus(this.s.getHeaderColumn(i) + " (Col. #: " + i + ") MISMATCH - FOUND:\n");
+                    DoubleEntry.appendStatus(origPrint + firstValue + "\n");
+                    DoubleEntry.appendStatus(doubPrint + secondValue + "\n");
                     if (this.saveOption == 0) {
-                        results.append(originalEntry + delim.getSaveSeparator() + doubleEntry + delim.getSaveSeparator() + this.s.getHeaderColumn(i) + delim.getSaveSeparator() + i + delim.getSaveSeparator() + firstValue + delim.getSaveSeparator() + secondValue);
+                        this.results.append(originalEntry + this.delim.getSaveSeparator() + doubleEntry + this.delim.getSaveSeparator() + this.s.getHeaderColumn(i) + this.delim.getSaveSeparator() + i + this.delim.getSaveSeparator() + firstValue + this.delim.getSaveSeparator() + secondValue);
                     } else if (this.saveOption == 1) {
-                        results.append("MISMATCH WITH " + doubleEntry + delim.getSaveSeparator());
+                        this.results.append("MISMATCH WITH " + doubleEntry + this.delim.getSaveSeparator());
                     }
                 }
             }
             if (this.saveOption == 1 && !foundMismatch) {
-                results.append(firstValue + delim.getSaveSeparator());
+                this.results.append(firstValue + this.delim.getSaveSeparator());
             }
         }
 
         if (savedSomething || this.saveOption == 1) {
-            results.append("" + delim.getRowSeparator());
-            numSaved++;
+            this.results.append("" + this.delim.getRowSeparator());
+            this.numSaved++;
         }
     }
 
     private void completeStatement() {
-        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------" + delim.getRowSeparator());
+        DoubleEntry.appendStatus("\n-----------------------------\n");
         DoubleEntry.appendStatus("Analysis Complete. No other records found.");
-        DoubleEntry.appendStatus("" + delim.getRowSeparator() + "-----------------------------" + delim.getRowSeparator());
+        DoubleEntry.appendStatus("\n-----------------------------\n");
     }
 }

@@ -32,7 +32,7 @@ class SurveyData {
 		this.delimiter = delimiter;
 		this.indexColumn = indexColumn;
 		this.reserved = new String[2];
-		this.reserved[0] = "N/A";
+		this.reserved[0] = "N/A-MISSING";
 		this.reserved[1] = "NULL";
 		parseData();
 	}
@@ -74,7 +74,7 @@ class SurveyData {
 		if (id == null) {
 			return "NULL";
 		} else if (id.equals("")) {
-			return "N/A";
+			return "N/A-MISSING";
 		} else {
 			return id;
 		}
