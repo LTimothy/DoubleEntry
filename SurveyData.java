@@ -1,5 +1,5 @@
 /**
- * Survey Data Object (WIP). Represents Individual Participants.
+ * Survey data represents data of individual participants.
  *
  * Copyright (C) 2019 Timothy Lee - All Rights Reserved
  * You may use, distribute and modify this code under the

@@ -36,6 +36,7 @@ public class DoubleEntry extends JFrame
 	private static String idPrefix;
 	private static File file;
 	private static DoubleEntryValidationLogic logic;
+	private static Survey s;
 
 	// Control Logic
 	private String osName;
@@ -201,8 +202,12 @@ public class DoubleEntry extends JFrame
 					try {
 						File file = fileChooser.getSelectedFile();
 						FileWriter fileW = new FileWriter(file, StandardCharsets.UTF_16);
+						String surveyResult = "";
+						if (saveFullExport.isSelected()) {
+							surveyResult = s.getResult();
+						}
 						String results = logic.getResult();
-						fileW.write(results, 0, results.length());
+						fileW.write(surveyResult + results, 0, results.length());
 						fileW.close();
 					} catch (IOException e) {
 						failed = true;
@@ -281,9 +286,11 @@ public class DoubleEntry extends JFrame
 			if (saveFullExport.isSelected()) {
 				saveOption = 1;
 			}
-			logic = new QualtricsDEVL(idColumn, idPrefix, file, new Delimiter("[\\t]", "\t", "\n"), saveOption);
+			s = new QualtricsSurvey(file, new Delimiter("[\\t]", "\t", "\n"), idColumn, idPrefix);
+			logic = new QualtricsDEVL(s, saveOption);
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDEVL.\n");
+			System.out.println("runQualtricsDEVL(): " + e);
 		}
 	}
 }

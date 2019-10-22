@@ -1,5 +1,5 @@
 /**
- * Double Entry Validation Logic Abstraction.
+ * Qualtrics Survey is a type of survey. The data starts 2 rows after the header.
  *
  * Copyright (C) 2019 Timothy Lee - All Rights Reserved
  * You may use, distribute and modify this code under the
@@ -15,6 +15,8 @@
 
 import java.io.*;
 
-public abstract class DoubleEntryValidationLogic {
-	abstract String getResult();
+class QualtricsSurvey extends Survey {
+	public QualtricsSurvey(File file, Delimiter delim, int indexColumn, String doublePrefix) {
+		super(file, delim, indexColumn, doublePrefix, 2);
+	}
 }

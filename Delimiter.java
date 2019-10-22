@@ -24,15 +24,15 @@ class Delimiter {
 		this.rowDelimiter = rowDelimiter;
 	}
 
-	public String getDelimiter() {
+	public String getSeparator() {
 		return this.delimiter;
 	}
 
-	public String getSaveDelimiter() {
+	public String getSaveSeparator() {
 		return this.saveDelimiter;
 	}
 
-	public String getRowDelimiter() {
+	public String getRowSeparator() {
 		return this.rowDelimiter;
 	}
 }
