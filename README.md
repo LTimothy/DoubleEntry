@@ -14,12 +14,14 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 
 ### To-Do
 * Breaking code into separate classes
+* GUI update
 * Documentation and comments
 * Improved analysis algorithm
 * Un-hardcoded values option (e.g. header row index, data rows start index, etc.)
-* Advanced Options (e.g. prefix/postfix combination, delimiter choice, etc.)
+* Advanced Options (e.g. prefix/postfix combination, delimiter choice, remove double-entry rows etc.)
 * Logic selection (e.g. Qualtrics, REDCap, etc.)
-* Additional file support
+* Additional file support (automatically save and open different file extensions)
+* Allow on-the-fly data correction
 * Improved instructions
 * Parallelism and multithreading support
 
