@@ -16,10 +16,10 @@
 import java.io.*;
 
 public abstract class DoubleEntryValidationLogic {
-	static String delimiter;
-	static String saveDelimiter;
-	static int idKey;
-	static File inputFile;
+	String delimiter;
+	String saveDelimiter;
+	int idKey;
+	File inputFile;
 
 	abstract String getResult();
 }

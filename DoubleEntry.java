@@ -275,7 +275,7 @@ public class DoubleEntry extends JFrame
 		});
 	}
 
-	private static void runQualtricsDEVL() {
+	private void runQualtricsDEVL() {
 		try {
 			int saveOption = 0;
 			if (saveFullExport.isSelected()) {

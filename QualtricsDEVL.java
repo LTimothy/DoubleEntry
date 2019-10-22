@@ -19,16 +19,16 @@ import java.lang.*;
 import java.nio.charset.StandardCharsets;
 
 public class QualtricsDEVL extends DoubleEntryValidationLogic {
-    private static String headerColumns[];
-    private static BufferedReader TSVFile;
-    private static List<SurveyData> participantInformation;
-    private static List<SurveyData> excludedFromMap;
-    private static Map<String, SurveyData> idParticipantMap;
-    private static String idPrefix;
-    private static int numSaved;
-    private static StringBuilder results;
-    private static int saveOption;
-    private static Delimiter delim;
+    private String headerColumns[];
+    private BufferedReader TSVFile;
+    private List<SurveyData> participantInformation;
+    private List<SurveyData> excludedFromMap;
+    private Map<String, SurveyData> idParticipantMap;
+    private String idPrefix;
+    private int numSaved;
+    private StringBuilder results;
+    private int saveOption;
+    private Delimiter delim;
 
     public QualtricsDEVL(int idColumn, String idPrefix, File file, Delimiter delim, int saveOption) throws Exception {
         this.saveOption = saveOption;
@@ -77,7 +77,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         return results.toString();
     }
 
-    private static void analyzeSurveys() {
+    private void analyzeSurveys() {
         idParticipantMap = new HashMap<>();
         boolean printDuplicate = false;
         for (int i = 0; i < participantInformation.size(); i++) {
@@ -117,7 +117,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         }
     }
 
-    private static void addParticipantInformation(String surveyId, SurveyData data) {
+    private void addParticipantInformation(String surveyId, SurveyData data) {
         SurveyData userId;
         if (data != null) {
             userId = data;
@@ -130,7 +130,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         results.append("" + delim.getRowDelimiter());
     }
 
-    private static void printOffending(String originalEntry, String doubleEntry) {
+    private void printOffending(String originalEntry, String doubleEntry) {
         SurveyData first = idParticipantMap.get(originalEntry);
         SurveyData second = idParticipantMap.get(doubleEntry);
 
@@ -184,13 +184,13 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         }
     }
 
-    private static void completeStatement() {
+    private void completeStatement() {
         DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
         DoubleEntry.appendStatus("Analysis Complete. No other records found.");
         DoubleEntry.appendStatus("" + delim.getRowDelimiter() + "-----------------------------" + delim.getRowDelimiter());
     }
 
-    private static void loadSurveys() {
+    private void loadSurveys() {
     	participantInformation = new ArrayList<>();
     	String loadData;
 
@@ -203,14 +203,14 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
 	    }
     }
 
-    private static String newlineTerminator(String line) {
+    private String newlineTerminator(String line) {
         if (!line.endsWith("" + delim.getRowDelimiter())) {
             line += "" + delim.getRowDelimiter();
         }
         return line;
     }
 
-    private static void initializeHeader() {
+    private void initializeHeader() {
     	try {
             String  line = TSVFile.readLine();
     		headerColumns = line.split(delim.getDelimiter());
@@ -223,7 +223,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
 	    }
     }
 
-    private static void skipLines(int lines) {
+    private void skipLines(int lines) {
     	try {
 	    	while (lines > 0) {
                 if (saveOption == 1) {
