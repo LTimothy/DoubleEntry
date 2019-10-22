@@ -12,12 +12,16 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 * Download latest release for your platform. Instructions can be found in the app.
 * Sample data is included in this distribution. The ID column is *31* and the prefix for double-entry data is *X_*.
 
-### To Do
-* Documentation/Comments
-* Additional File Support
-* More Efficient Analysis Logic
-* Improved Instructions
-* Advanced Options (e.g. postfix, delimiter choice, etc.)
+### To-Do
+* Breaking code into separate classes
+* Documentation and comments
+* Improved analysis algorithm
+* Un-hardcoded values option (e.g. header row index, data rows start index, etc.)
+* Advanced Options (e.g. prefix/postfix combination, delimiter choice, etc.)
+* Logic selection (e.g. Qualtrics, REDCap, etc.)
+* Additional file support
+* Improved instructions
+* Parallelism and multithreading support
 
 ### Additional Notes
 Work in progress. Created for the Family and Culture Lab at Berkeley, CA as a side-project.
