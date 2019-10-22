@@ -31,7 +31,7 @@ class Survey {
     private int indexColumn;
     private String doublePrefix;
 
-    // Output (if desired) of read items
+    // Output (if desired) of reading items
     private StringBuilder results;
 
 	public Survey(File file, Delimiter delim, int indexColumn, String doublePrefix, int dataStart) {
@@ -66,7 +66,7 @@ class Survey {
         	try {
             	this.readFile.close();
             } catch (IOException e) {
-            	System.out.println("Survey Constructor (2): " + e);
+            	System.out.println("Survey Constructor (3): " + e);
             	DoubleEntry.appendStatus("ERROR: Failed to close file." + this.delim.getRowSeparator());
             	return;
             }
