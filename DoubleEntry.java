@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 public class DoubleEntry extends JFrame
 {
-	// GUI Elementss
+	// GUI Elements
 	private static JTextArea status;
 	private static JCheckBox saveFullExport;
 	private JTextField columnText;
@@ -36,6 +36,9 @@ public class DoubleEntry extends JFrame
 	private static String idPrefix;
 	private static File file;
 	private static DoubleEntryValidationLogic logic;
+
+	// Control Logic
+	private String osName;
 
 	public DoubleEntry() {
 		Container contain = getContentPane();
@@ -136,10 +139,26 @@ public class DoubleEntry extends JFrame
 
 
 		// Container Setup
-		setTitle("Double Entry");
+		setTitle("Double Entry Validaton Tool");
 		setBounds(100, 100, 500, 500);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+
+		// Native Look and Feel Setup (https://alvinalexander.com/apple/mac/java-mac-native-look/)
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			osName = System.getProperty("os.name").toLowerCase();
+			boolean IS_MAC = osName.startsWith("mac os x");
+			if (IS_MAC) {
+				System.setProperty("apple.laf.useScreenMenuBar", "true");
+				System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Double Entry Validation Tool");
+				// fileSaveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                                // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			}
+		} catch (Exception e) {
+			System.out.println("UIManager.setLookAndFeel() failed.");
+			osName = "";
+		}
 	}
 
 	public static void appendStatus(String text) {
@@ -219,6 +238,7 @@ public class DoubleEntry extends JFrame
 
 				idPrefix = prefixText.getText();
 				status.setText("");
+				status.append("Program Platform: " + osName + "\n");
 				status.append("Filename: " + filename + "\n");
 				status.append("ID Column #: " + idText + "\n");
 				status.append("Prefix: " + idPrefix + "\n\n");
