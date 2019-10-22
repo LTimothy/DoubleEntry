@@ -147,8 +147,6 @@ public class DoubleEntry extends JFrame
 			if (IS_MAC) {
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Double Entry Validation Tool");
-				// fileSaveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                // Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			}
 		} catch (Exception e) {
 			System.out.println("UIManager.setLookAndFeel() failed.");
