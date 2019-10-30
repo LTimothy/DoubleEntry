@@ -54,7 +54,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         DoubleEntry.appendStatus("Starting Analysis.");
         DoubleEntry.appendStatus("\n-----------------------------\n");
 
-        Set<String> uniqueNames = this.s.getUniqueParticipantNameSet();
+        Set<String> uniqueNames = new TreeSet<String>(this.s.getUniqueParticipantNameSet());
         Iterator<String> participants = uniqueNames.iterator();
         while (participants.hasNext()) {
             String checking = participants.next();
@@ -95,23 +95,20 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             String firstValue = first.columnData(i);
             String secondValue = second.columnData(i);
             boolean foundMismatch = false;
+
             if (i != this.idKey && i < maxReach) {
                 if (!firstValue.equals(secondValue)) {
                     foundMismatch = true;
                     if (savedSomething == false) {
-                        if (this.numSaved == 0) {
-                            if (this.saveOption == 0) {
-                                this.results.append("Original ID" + this.delim.getSaveSeparator() + "Double Entry ID" + this.delim.getSaveSeparator() + "Mismatched Column Name" + this.delim.getSaveSeparator() + "Mismatched Column Index" + this.delim.getSaveSeparator() + "Original Data" + this.delim.getSaveSeparator() + "Double Entry Data" + this.delim.getRowSeparator());
-                            }
+                        if (this.numSaved == 0 && this.saveOption == 0) {
+                            this.results.append("Original ID" + this.delim.getSaveSeparator() + "Double Entry ID" + this.delim.getSaveSeparator() + "Mismatched Column Name" + this.delim.getSaveSeparator() + "Mismatched Column Index" + this.delim.getSaveSeparator() + "Original Data" + this.delim.getSaveSeparator() + "Double Entry Data" + this.delim.getRowSeparator());
                         }
-                        DoubleEntry.appendStatus("" + this.delim.getRowSeparator() + "-----------------------------------------------------------\n");
+                        DoubleEntry.appendStatus("\n-----------------------------------------------------------\n");
                         DoubleEntry.appendStatus("ID: " + originalEntry + " MISMATCH WITH " + doubleEntry);
-                        DoubleEntry.appendStatus("" + this.delim.getRowSeparator() + "-----------------------------------------------------------\n");
+                        DoubleEntry.appendStatus("\n-----------------------------------------------------------\n");
                         savedSomething = true;
-                    } else {
-                        if (this.saveOption == 0) {
-                            this.results.append("" + this.delim.getRowSeparator());
-                        }
+                    } else if (this.saveOption == 0) {
+                        this.results.append(this.delim.getRowSeparator());
                     }
                     DoubleEntry.appendStatus(this.s.getHeaderColumn(i) + " (Col. #: " + i + ") MISMATCH - FOUND:\n");
                     DoubleEntry.appendStatus(origPrint + firstValue + "\n");
@@ -129,7 +126,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         }
 
         if (savedSomething || this.saveOption == 1) {
-            this.results.append("" + this.delim.getRowSeparator());
+            this.results.append(this.delim.getRowSeparator());
             this.numSaved++;
         }
     }
