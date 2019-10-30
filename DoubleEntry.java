@@ -58,7 +58,7 @@ public class DoubleEntry extends JFrame
 		filenamePanel.add(openButton);
 
 		// Column loading
-		JLabel columnLabel = new JLabel("Enter ID Column # (0-indexed)");
+		JLabel columnLabel = new JLabel("Enter ID Column (e.g. AA)");
 		columnLabel.setFont(defaultFont);
 		columnPanel.add(columnLabel);
 		columnText = new JTextField(20);
@@ -220,6 +220,21 @@ public class DoubleEntry extends JFrame
 		}
 	}
 
+	private int decipherColumn(String text) {
+		text = text.trim().toLowerCase();
+		StringBuilder temp = new StringBuilder(text);
+		int columnNum = 0;
+
+		for (int i = 0; i < text.length(); i++) {
+			char identifier = temp.charAt(i);
+			if (Character.isLetter(identifier)) {
+				columnNum += (identifier - 97) + (i * 26);
+			}
+		}
+
+		return columnNum;
+	}
+
 	private class ButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
@@ -228,16 +243,21 @@ public class DoubleEntry extends JFrame
 				String idText;
 				try {
 					idText = columnText.getText();
-					indexColumn = Integer.valueOf(idText);
+					if (Character.isLetter(idText.charAt(0))) {
+						indexColumn = decipherColumn(idText);
+					} else {
+						indexColumn = Integer.valueOf(idText);
+					}
 				} catch (NumberFormatException e) {
-					idText = "Invalid Number";
+					idText = "Invalid Column";
 				}
 
 				doublePrefix = prefixText.getText();
 				status.setText("");
 				status.append("Program Platform: " + osName + "\n");
 				status.append("Filename: " + filename + "\n");
-				status.append("ID Column #: " + idText + "\n");
+				status.append("ID Column: " + idText + "\n");
+				status.append("ID Column #: " + indexColumn + "\n");
 				status.append("Prefix: " + doublePrefix + "\n\n");
 				runQualtricsDEVL();
 			} else if (label.equals("Clear")) {
