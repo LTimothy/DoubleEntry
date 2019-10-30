@@ -291,6 +291,7 @@ public class DoubleEntry extends JFrame
 				status.setText("");
 				filename = "";
 				indexColumn = 0;
+				relevantColumn = 0;
 				doublePrefix = "";
 				file = null;
 			} else if (label.equals("Instructions")) {
