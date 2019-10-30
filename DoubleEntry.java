@@ -19,6 +19,7 @@ public class DoubleEntry extends JFrame
 	private static JTextArea status;
 	private static JCheckBox saveFullExport;
 	private JTextField columnText;
+	private JTextField usefulText;
 	private JTextField prefixText;
 	private JFileChooser fileChooser;
 	private JButton submitBtn;
@@ -27,6 +28,7 @@ public class DoubleEntry extends JFrame
 	// Data Fields
 	private static String filename;
 	private static int indexColumn;
+	private static int relevantColumn;
 	private static String doublePrefix;
 	private static File file;
 	private static DoubleEntryValidationLogic logic;
@@ -42,9 +44,10 @@ public class DoubleEntry extends JFrame
 		ButtonListener listener = new ButtonListener();
 
 		// NORTH PANEL
-		Panel northPanel = new Panel(new GridLayout(5, 1));
+		Panel northPanel = new Panel(new GridLayout(6, 1));
 		Panel filenamePanel = new Panel(new GridLayout(1, 2));
 		Panel columnPanel = new Panel(new GridLayout(1, 2));
+		Panel usefulPanel = new Panel(new GridLayout(1, 2));
 		Panel prefixPanel = new Panel(new GridLayout(1, 2));
 
 		// Filename Loading
@@ -58,7 +61,7 @@ public class DoubleEntry extends JFrame
 		filenamePanel.add(openButton);
 
 		// Column loading
-		JLabel columnLabel = new JLabel("Enter ID Column (e.g. AA)");
+		JLabel columnLabel = new JLabel("Enter Participant ID Column (e.g. AA)");
 		columnLabel.setFont(defaultFont);
 		columnPanel.add(columnLabel);
 		columnText = new JTextField(20);
@@ -66,8 +69,17 @@ public class DoubleEntry extends JFrame
 		columnText.setEditable(true);
 		columnPanel.add(columnText);
 
+		// Useful Columns
+		JLabel usefulLabel = new JLabel("Enter First Relevant Column (e.g. F)");
+		usefulLabel.setFont(defaultFont);
+		usefulPanel.add(usefulLabel);
+		usefulText = new JTextField(20);
+		usefulText.setFont(defaultFont);
+		usefulText.setEditable(true);
+		usefulPanel.add(usefulText);
+
 		// Prefix loading
-		JLabel prefixLabel = new JLabel("Enter ID Prefix");
+		JLabel prefixLabel = new JLabel("Enter Double-Entry ID Prefix (e.g. X_)");
 		prefixLabel.setFont(defaultFont);
 		prefixPanel.add(prefixLabel);
 		prefixText = new JTextField(20);
@@ -77,6 +89,7 @@ public class DoubleEntry extends JFrame
 
 		northPanel.add(filenamePanel);
 		northPanel.add(columnPanel);
+		northPanel.add(usefulPanel);
 		northPanel.add(prefixPanel);
 
 		// Checkbox Panel
@@ -248,17 +261,31 @@ public class DoubleEntry extends JFrame
 					} else {
 						indexColumn = Integer.valueOf(idText);
 					}
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException | StringIndexOutOfBoundsException e) {
 					idText = "Invalid Column";
+				}
+
+				String firstRelevant;
+				try {
+					firstRelevant = usefulText.getText();
+					if (Character.isLetter(firstRelevant.charAt(0))) {
+						relevantColumn = decipherColumn(firstRelevant);
+					} else {
+						relevantColumn = Integer.valueOf(firstRelevant);
+					}
+				} catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+					firstRelevant = "Invalid First Relevant Column";
 				}
 
 				doublePrefix = prefixText.getText();
 				status.setText("");
 				status.append("Program Platform: " + osName + "\n");
 				status.append("Filename: " + filename + "\n");
-				status.append("ID Column: " + idText + "\n");
-				status.append("ID Column #: " + indexColumn + "\n");
-				status.append("Prefix: " + doublePrefix + "\n\n");
+				status.append("Participant ID Column: " + idText + "\n");
+				status.append("Participant ID Column #: " + indexColumn + "\n");
+				status.append("First Relevant Data Column: " + firstRelevant + "\n");
+				status.append("First Relevant Data Column #: " + relevantColumn + "\n");
+				status.append("Double-Entry Participant ID Prefix: " + doublePrefix + "\n\n");
 				runQualtricsDEVL();
 			} else if (label.equals("Clear")) {
 				status.setText("");
