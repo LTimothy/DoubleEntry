@@ -91,6 +91,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         String doubPrint = "ID- " + doubleEntry + ": ";
 
         boolean savedSomething = false;
+        StringBuilder comparisonData = new StringBuilder();
 
         for (int i = 0; i < maxReach || (this.saveOption == 1 && i < this.s.getHeaderColumnLength()); i++) {
             String firstValue = first.columnData(i);
@@ -117,17 +118,26 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
                     if (this.saveOption == 0) {
                         this.results.append(originalEntry + this.delim.getSaveSeparator() + doubleEntry + this.delim.getSaveSeparator() + this.s.getHeaderColumn(i) + this.delim.getSaveSeparator() + i + this.delim.getSaveSeparator() + firstValue + this.delim.getSaveSeparator() + secondValue);
                     } else if (this.saveOption == 1) {
-                        this.results.append("MISMATCH WITH " + doubleEntry + this.delim.getSaveSeparator());
+                        comparisonData.append("MISMATCH" + this.delim.getSaveSeparator());
                     }
                 }
             }
-            if (this.saveOption == 1 && !foundMismatch) {
+            if (this.saveOption == 1) {
+                if (!foundMismatch && i != this.idKey) {
+                    comparisonData.append("SAME" + this.delim.getSaveSeparator());
+                } else if (i == this.idKey) {
+                    comparisonData.append("COMPARISON_" + firstValue + this.delim.getSaveSeparator());
+                }
                 this.results.append(firstValue + this.delim.getSaveSeparator());
             }
         }
 
         if (savedSomething || this.saveOption == 1) {
             this.results.append(this.delim.getRowSeparator());
+            String comparisonRow = comparisonData.toString();
+            if (!comparisonRow.equals("")) {
+                this.results.append(comparisonData.toString() + this.delim.getRowSeparator());
+            }
             this.numSaved++;
         }
     }
