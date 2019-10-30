@@ -13,7 +13,7 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 * Sample data is included in this distribution. The ID column is *31* and the prefix for double-entry data is *X_*.
 
 ### To-Do
-* Breaking code into separate classes
+* More Abstraction
 * GUI update
 * Documentation and comments
 * Improved analysis algorithm
