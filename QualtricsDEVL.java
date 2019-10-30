@@ -15,14 +15,16 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
     private int idKey;
     private int numSaved;
     private int saveOption;
+    private int firstRelevant;
     private Delimiter delim;
     private Survey s;
 
-    public QualtricsDEVL(Survey s, int saveOption) {
+    public QualtricsDEVL(Survey s, int saveOption, int firstRelevant) {
         this.s = s;
         this.saveOption = saveOption;
         this.delim = this.s.getDelimiter();
         this.numSaved = 0;
+        this.firstRelevant = firstRelevant;
         this.results = new StringBuilder();
         this.idKey = this.s.getIndex();
         if (this.idKey > this.s.getHeaderColumnLength()) {
@@ -98,7 +100,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             String secondValue = second.columnData(i);
             boolean foundMismatch = false;
 
-            if (i != this.idKey && i < maxReach) {
+            if (i != this.idKey && i < maxReach && i >= this.firstRelevant) {
                 if (!firstValue.equals(secondValue)) {
                     foundMismatch = true;
                     if (savedSomething == false) {

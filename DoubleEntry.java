@@ -327,7 +327,7 @@ public class DoubleEntry extends JFrame
 				saveOption = 1;
 			}
 			s = new QualtricsSurvey(file, new Delimiter("[\\t]", "\t", "\n"), indexColumn, doublePrefix);
-			logic = new QualtricsDEVL(s, saveOption);
+			logic = new QualtricsDEVL(s, saveOption, relevantColumn);
 		} catch (Exception e) {
 			appendStatus("\nFailed to run QualtricsDEVL.\n");
 			System.out.println("runQualtricsDEVL(): " + e);
