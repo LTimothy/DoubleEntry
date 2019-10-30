@@ -199,7 +199,7 @@ public class DoubleEntry extends JFrame
 							surveyResult = s.getResult();
 						}
 						String results = logic.getResult();
-						fileW.write(surveyResult + results, 0, results.length());
+						fileW.write(surveyResult + results, 0, results.length() + surveyResult.length());
 						fileW.close();
 					} catch (IOException e) {
 						failed = true;

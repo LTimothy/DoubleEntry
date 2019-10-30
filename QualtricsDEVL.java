@@ -78,6 +78,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
             this.results.append(userId.columnData(i) + this.delim.getSaveSeparator());
         }
         this.results.append(this.delim.getRowSeparator());
+        this.numSaved++;
     }
 
     private void printOffending(String originalEntry, String doubleEntry) {
