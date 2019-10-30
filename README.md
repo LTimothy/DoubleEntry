@@ -28,4 +28,4 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 ### Additional Notes
 Work in progress. Created for the Family and Culture Lab at Berkeley, CA as a side-project.
 
-Updated 10/20/19
+Updated 10/30/19
