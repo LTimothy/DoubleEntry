@@ -321,16 +321,16 @@ public class DoubleEntry extends JFrame
 	}
 
 	private void runQualtricsDEVL() {
-		try {
+		// try {
 			int saveOption = 0;
 			if (saveFullExport.isSelected()) {
 				saveOption = 1;
 			}
 			s = new QualtricsSurvey(file, new Delimiter("[\\t]", "\t", "\n"), indexColumn, doublePrefix);
 			logic = new QualtricsDEVL(s, saveOption, relevantColumn);
-		} catch (Exception e) {
-			appendStatus("\nFailed to run QualtricsDEVL.\n");
-			System.out.println("runQualtricsDEVL(): " + e);
-		}
+		// } catch (Exception e) {
+		// 	appendStatus("\nFailed to run QualtricsDEVL.\n");
+		// 	System.out.println("runQualtricsDEVL(): " + e);
+		// }
 	}
 }

@@ -88,6 +88,7 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
         SurveyData second = this.s.getParticipantData(doubleEntry);
 
         int maxReach = Math.max(first.internalLength(), second.internalLength());
+        maxReach = Math.min(maxReach, this.s.getHeaderColumnLength()); // hotfix out of bounds, caused by relevantColumns
 
         String origPrint = "ID- " + originalEntry + ": ";
         String doubPrint = "ID- " + doubleEntry + ": ";
@@ -120,15 +121,16 @@ public class QualtricsDEVL extends DoubleEntryValidationLogic {
                     if (this.saveOption == 0) {
                         this.results.append(originalEntry + this.delim.getSaveSeparator() + doubleEntry + this.delim.getSaveSeparator() + this.s.getHeaderColumn(i) + this.delim.getSaveSeparator() + i + this.delim.getSaveSeparator() + firstValue + this.delim.getSaveSeparator() + secondValue);
                     } else if (this.saveOption == 1) {
-                        comparisonData.append("MISMATCH" + this.delim.getSaveSeparator());
+                        comparisonData.append("!= " + secondValue + this.delim.getSaveSeparator());
                     }
                 }
             }
             if (this.saveOption == 1) {
                 if (!foundMismatch && i != this.idKey) {
-                    comparisonData.append("SAME" + this.delim.getSaveSeparator());
+                    String nothingFound = secondValue; // placeholder
+                    comparisonData.append(nothingFound + this.delim.getSaveSeparator());
                 } else if (i == this.idKey) {
-                    comparisonData.append("COMPARISON_" + firstValue + this.delim.getSaveSeparator());
+                    comparisonData.append("X_" + firstValue + this.delim.getSaveSeparator());
                 }
                 this.results.append(firstValue + this.delim.getSaveSeparator());
             }
