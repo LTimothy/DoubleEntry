@@ -17,7 +17,6 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 * GUI update
 * Documentation and comments
 * Improved analysis algorithm
-* Un-hardcoded values option (e.g. header row index, data rows start index, etc.)
 * Advanced Options (e.g. prefix/postfix combination, delimiter choice, remove double-entry rows etc.)
 * Logic selection (e.g. Qualtrics, REDCap, etc.)
 * Additional file support (automatically save and open different file extensions)
@@ -28,4 +27,4 @@ A tool which, given Qualtrics survey exports, can compare different survey entri
 ### Additional Notes
 Work in progress. Created for the Family and Culture Lab at Berkeley, CA as a side-project.
 
-Updated 10/30/19
+Updated 4/24/20
