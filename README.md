@@ -23,6 +23,14 @@ and the "double entry". This is useful for identifying and reconciling user inpu
 ./gradlew shadowJar
 ```
 
+### Demo
+Sample data is included in this distribution. The ID column is `AF`, the first-relevant column is `C`, and the prefix 
+for double-entry data is `X_`.
+
+### Future Improvements
+* Integration tests and unit tests, this was rushed to fulfill an immediate need within the lab.
+* Refactoring of code into more classes, the responsibility of classes are somewhat meshed and can be improved.
+
 ### Additional Notes
 Originally developed in April 2020. Refactored in February 2023. Created for the Family and Culture Lab at 
 Berkeley, CA as a side-project.

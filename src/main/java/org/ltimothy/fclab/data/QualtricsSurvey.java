@@ -1,6 +1,10 @@
 package org.ltimothy.fclab.data;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.ICSVParser;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.NonNull;
@@ -11,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,18 +33,20 @@ public class QualtricsSurvey {
     private final int firstRelevantColumn;
     private final String doubleEntryIdPrefix;
     private final Map<String, String[]> participantIdToRawData;
+    private final Charset charset;
 
     private List<String[]> rawDataHeaders;
     private List<String[]> processedData;
 
     public QualtricsSurvey(@NonNull final File file, int participantIdColumn, int firstRelevantColumn,
-                           @NonNull final String doubleEntryIdPrefix) {
+                           @NonNull final String doubleEntryIdPrefix, @NonNull Charset charset) {
         this.participantIdToRawData = new HashMap<>();
         this.rawDataHeaders = new ArrayList<>();
         this.processedData = new ArrayList<>();
         this.participantIdColumn = participantIdColumn;
         this.firstRelevantColumn = firstRelevantColumn;
         this.doubleEntryIdPrefix = doubleEntryIdPrefix.toLowerCase();
+        this.charset = charset;
         processFile(file);
     }
 
@@ -119,39 +127,33 @@ public class QualtricsSurvey {
         final String fileExtension = filePath.substring(filePath.lastIndexOf(".") + 1).toLowerCase();
         int headersRemaining = QUALTRICS_HEADERS_TOTAL_LENGTH;
 
+        final char delimiter;
         if (fileExtension.equals("tsv")) {
-            try (final BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    final String[] fields = line.split("\t", -1);
-                    if (headersRemaining > 0) {
-                        rawDataHeaders.add(fields);
-                        headersRemaining--;
-                        continue;
-                    }
-                    processNonHeaderLine(fields);
-                }
-            } catch (final IOException | IndexOutOfBoundsException e) {
-                log.error("Exception in processing the *.tsv file {}", file, e);
-            }
+            delimiter = '\t';
         } else if (fileExtension.equals("csv")) {
-            int i = 0;
-            try (final CSVReader reader = new CSVReader(new FileReader(filePath))) {
-                String[] nextLine;
-                while ((nextLine = reader.readNext()) != null) {
-                    i++;
-                    if (headersRemaining > 0) {
-                        rawDataHeaders.add(nextLine);
-                        headersRemaining--;
-                        continue;
-                    }
-                    processNonHeaderLine(nextLine);
-                }
-            } catch (final IOException | CsvValidationException | IndexOutOfBoundsException e) {
-                log.error("Exception in processing the *.csv file {}", file, e);
-            }
+            delimiter = ',';
         } else {
             log.info("The file selected was of an unsupported file type {}", file);
+            return;
+        }
+
+        try (final CSVReader reader = new CSVReaderBuilder(new FileReader(filePath, charset))
+                .withCSVParser(new CSVParserBuilder()
+                        .withQuoteChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                        .withSeparator(delimiter)
+                        .build())
+                .build()) {
+            String[] nextLine;
+            while ((nextLine = reader.readNext()) != null) {
+                if (headersRemaining > 0) {
+                    rawDataHeaders.add(nextLine);
+                    headersRemaining--;
+                    continue;
+                }
+                processNonHeaderLine(nextLine);
+            }
+        } catch (final IOException | CsvValidationException | IndexOutOfBoundsException e) {
+            log.error("Exception in processing the file {}", file, e);
         }
     }
 
@@ -167,7 +169,7 @@ public class QualtricsSurvey {
             participantIdToRawData.put(participantIdLower, fields);
         } else {
             log.info("Blank participant ID was removed for row with fields {}", Arrays.toString(fields));
-            DefaultGUI.appendStatusTextArea("Rows with blank participant ids were removed!");
+            DefaultGUI.appendStatusTextArea("A row with a blank participant id was removed!");
         }
     }
 }

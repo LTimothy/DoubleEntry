@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.ltimothy.fclab.data.QualtricsSurvey;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import javax.inject.Named;
 import javax.swing.JButton;
@@ -26,11 +27,11 @@ import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -56,6 +57,7 @@ public class DefaultGUI extends JFrame {
     private JTextField firstRelevantColumnInputTextField;
     private JTextField doubleEntryIdPrefixInputTextField;
     private Optional<QualtricsSurvey> surveyOptional;
+    private Charset charset;
 
     @Getter
     private Optional<File> fileOptional;
@@ -70,6 +72,7 @@ public class DefaultGUI extends JFrame {
                 this.doubleEntryIdPrefixInputTextField = getEditableJTextField();
                 this.fileOptional = Optional.empty();
                 this.surveyOptional = Optional.empty();
+                this.charset = StandardCharsets.UTF_8;
 
                 this.container = createDefaultContainer(systemPlatform);
                 this.container.add(getDefaultConfigurationPanel(), BorderLayout.NORTH);
@@ -177,7 +180,7 @@ public class DefaultGUI extends JFrame {
         return createJButton("Save", new SaveFileListener());
     }
 
-    private Optional<Integer> decipherColumn(final String columnText) {
+    private Optional<Integer> decipherColumn(@NonNull final String columnText) {
         final StringBuilder temp = new StringBuilder(columnText.trim().toLowerCase());
         int columnNum = 0;
 
@@ -247,14 +250,29 @@ public class DefaultGUI extends JFrame {
         return nonEditableJTextArea;
     }
 
+    private Charset detectCharset(@NonNull final File f) {
+        byte[] buf = new byte[4096];
+        final UniversalDetector detector = new UniversalDetector(null);
+        try (final FileInputStream fileInputStream = new FileInputStream(f)) {
+            int nread;
+            while ((nread = fileInputStream.read(buf)) > 0 && !detector.isDone()) {
+                detector.handleData(buf, 0, nread);
+            }
+            detector.dataEnd();
+        } catch (final IOException e) {
+            log.warn("Could not detect charset, defaulting to {}", charset, e);
+        }
+        return Charset.forName(detector.getDetectedCharset());
+    }
+
     private class OpenFileListener implements ActionListener {
         @Override
-        public void actionPerformed(final ActionEvent ae) {
+        public void actionPerformed(@NonNull final ActionEvent ae) {
             final JFileChooser fileChooser = new JFileChooser();
             fileChooser.setCurrentDirectory(new File("."));
             fileChooser.setFileFilter(new FileFilter() {
                 @Override
-                public boolean accept(final File f) {
+                public boolean accept(@NonNull final File f) {
                     return f.getName().toLowerCase().endsWith(".tsv")
                             || f.getName().toLowerCase().endsWith(".csv")
                             || f.isDirectory();
@@ -271,6 +289,7 @@ public class DefaultGUI extends JFrame {
                 fileOptional = Optional.ofNullable(fileChooser.getSelectedFile());
                 if (fileOptional.isPresent()) {
                     final File file = fileOptional.get();
+                    charset = detectCharset(file);
                     log.info("Selected file {}", file);
                     appendStatusTextArea("Selected file " + file.getName());
                 }
@@ -280,13 +299,13 @@ public class DefaultGUI extends JFrame {
 
     private class SaveFileListener implements ActionListener {
         @Override
-        public void actionPerformed(final ActionEvent ae) {
+        public void actionPerformed(@NonNull final ActionEvent ae) {
             if (surveyOptional.isPresent()) {
                 final JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setCurrentDirectory(new File("."));
                 fileChooser.setFileFilter(new FileFilter() {
                     @Override
-                    public boolean accept(final File f) {
+                    public boolean accept(@NonNull final File f) {
                         if (f.isDirectory()) {
                             return true;
                         }
@@ -327,7 +346,7 @@ public class DefaultGUI extends JFrame {
                     }
 
                     try {
-                        CSVWriter writer = new CSVWriter(new FileWriter(fileToSave), delimiter,
+                        CSVWriter writer = new CSVWriter(new FileWriter(fileToSave, charset), delimiter,
                                 ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER,
                                 ICSVWriter.DEFAULT_LINE_END);
                         surveyOptional.get().getExportData().forEach(writer::writeNext);
@@ -345,7 +364,7 @@ public class DefaultGUI extends JFrame {
 
     private class AnalyzeFileListener implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent ee) {
+        public void actionPerformed(@NonNull final ActionEvent ee) {
             final Optional<String> participantIdColumnOptional =
                     Optional.ofNullable(participantIdColumnInputTextField.getText());
             final Optional<String> firstRelevantColumnOptional =
@@ -369,7 +388,7 @@ public class DefaultGUI extends JFrame {
                 if (participantIdColumnNum.isPresent() && firstRelevantColumnNum.isPresent()) {
                     try {
                         surveyOptional = Optional.of(new QualtricsSurvey(fileOptional.get(), participantIdColumnNum.get(),
-                                firstRelevantColumnNum.get(), doubleEntryIdPrefixOptional.get()));
+                                firstRelevantColumnNum.get(), doubleEntryIdPrefixOptional.get(), charset));
                     } catch (final IllegalStateException e) {
                         appendStatusTextArea(e.getMessage());
                     }
