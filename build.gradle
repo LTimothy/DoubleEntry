@@ -2,10 +2,14 @@ plugins {
     id 'java'
     id 'idea'
     id "io.freefair.lombok" version "6.6.2"
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 group 'org.ltimothy.fclab'
 version '1.0-SNAPSHOT'
+
+mainClassName = 'org.ltimothy.fclab.DoubleEntry'
 
 repositories {
     mavenCentral()
@@ -19,10 +23,21 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
     implementation 'com.google.dagger:dagger:2.45'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.45'
+    implementation 'com.opencsv:opencsv:5.7.1'
 }
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
 }
 
 tasks.withType(JavaCompile) {
