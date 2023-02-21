@@ -4,19 +4,15 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.ICSVParser;
-import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.ltimothy.fclab.gui.DefaultGUI;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,6 +24,7 @@ public class QualtricsSurvey {
     private static final int QUALTRICS_PRIMARY_HEADER_INDEX = 0;
     private static final int QUALTRICS_HEADERS_TOTAL_LENGTH = 3;
     private static final String NO_MISMATCH_TEXT = "OK";
+    private static final String MISMATCH_PREFIX = "!= ";
 
     private final int participantIdColumn;
     private final int firstRelevantColumn;
@@ -66,24 +63,29 @@ public class QualtricsSurvey {
                 final String originalEntryParticipantId = participantId.substring(doubleEntryIdPrefix.length());
                 if (!participantId.startsWith(doubleEntryIdPrefix)) {
                     if (participantIdToRawData.containsKey(doubleEntryParticipantId)){
-                        final String[] originalEntryRawData = participantIdToRawData.get(participantId);
+                        final int rawDataLength = rawDataHeaders.get(QUALTRICS_PRIMARY_HEADER_INDEX).length;
+                        final String[] originalEntryData =
+                                Arrays.copyOf(participantIdToRawData.get(participantId), rawDataLength);
                         final String[] doubleEntryData =
-                                Arrays.copyOf(participantIdToRawData.get(doubleEntryParticipantId),
-                                        originalEntryRawData.length);
+                                Arrays.copyOf(participantIdToRawData.get(doubleEntryParticipantId), rawDataLength);
 
                         printAnalysisHeader(participantId);
-                        for (int i = firstRelevantColumn; i < originalEntryRawData.length; i++) {
-                            final String originalValue = originalEntryRawData[i];
+                        for (int i = firstRelevantColumn; i < originalEntryData.length; i++) {
+                            if (i == participantIdColumn) {
+                                continue;
+                            }
+                            final String originalValue = originalEntryData[i];
                             final String doubleEntryValue = doubleEntryData[i];
                             if (!originalValue.trim().equalsIgnoreCase(doubleEntryValue.trim())) {
                                 printMismatch(rawDataHeaders.get(QUALTRICS_PRIMARY_HEADER_INDEX)[i], originalValue,
                                         doubleEntryValue);
+                                doubleEntryData[i] = MISMATCH_PREFIX.concat(doubleEntryData[i]);
                             } else {
                                 doubleEntryData[i] = NO_MISMATCH_TEXT;
                             }
                         }
 
-                        processedData.add(originalEntryRawData);
+                        processedData.add(originalEntryData);
                         processedData.add(doubleEntryData);
                     } else {
                         processedData.add(participantIdToRawData.get(participantId));
