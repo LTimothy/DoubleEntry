@@ -1,6 +1,7 @@
 package org.ltimothy.fclab.gui;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
 import lombok.Getter;
 import lombok.NonNull;
@@ -346,12 +347,12 @@ public class DefaultGUI extends JFrame {
                     }
 
                     try {
-                        CSVWriter writer = new CSVWriter(new FileWriter(fileToSave, charset), delimiter,
+                        final CSVWriter writer = new CSVWriter(new FileWriter(fileToSave, charset), delimiter,
                                 ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER,
                                 ICSVWriter.DEFAULT_LINE_END);
                         surveyOptional.get().getExportData().forEach(writer::writeNext);
                         writer.close();
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         e.printStackTrace();
                     }
                 }
